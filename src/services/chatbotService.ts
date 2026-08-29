@@ -1,4 +1,4 @@
-import { Scheme, UserProfile, MatchResult } from '@/types';
+import { Scheme, UserProfile, MatchResult, formatCurrency } from '@/types';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -38,7 +38,7 @@ export function handleChatMessage(
 
   // Amount questions
   if (lowerMsg.match(/(how much|loan amount|maximum|get)/)) {
-    return `For ${scheme.name}, the maximum loan amount or financial benefit is: **${scheme.maximumLoanAmount || 'Varies based on project'}**.`;
+    return `For ${scheme.name}, the maximum loan amount or financial benefit is: **${scheme.maximumLoanAmount ? formatCurrency(scheme.maximumLoanAmount) : 'Varies based on project'}**.`;
   }
 
   // Interest rate

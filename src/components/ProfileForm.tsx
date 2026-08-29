@@ -9,7 +9,8 @@ import {
   BUSINESS_TYPES, 
   INCOME_RANGES, 
   INDIAN_STATES, 
-  normalizeStateName 
+  normalizeStateName,
+  formatCurrency
 } from '@/types';
 import type { UserProfile } from '@/types';
 import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles } from 'lucide-react';
@@ -413,20 +414,53 @@ export default function ProfileForm() {
             </div>
             
             <div>
-              <label className="label-text">Project Cost / Loan Requirement (₹)</label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="label-text mb-0">Project Cost / Loan Requirement (₹)</label>
+                {formData.projectCost && Number(formData.projectCost) > 0 ? (
+                  <span className="text-xs font-bold text-neutral-900 bg-neutral-100 px-2.5 py-0.5 rounded-full border border-neutral-300">
+                    {formatCurrency(Number(formData.projectCost))}
+                  </span>
+                ) : null}
+              </div>
               <input
                 type="number"
                 name="projectCost"
                 value={formData.projectCost || ''}
                 onChange={handleChange}
-                min="1000"
-                step="10000"
+                min="0"
+                step="any"
                 className="input-field"
-                placeholder="e.g. 500000"
+                placeholder="e.g. 300000, 500000, 1000000"
               />
               <span className="text-xs text-neutral-400 mt-1.5 block">
-                Enter the total estimated project cost or required credit in INR.
+                Enter any exact project / loan amount in INR.
               </span>
+
+              {/* Quick funding shortcuts */}
+              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                <span className="text-xs text-neutral-400 self-center mr-1">Quick pick:</span>
+                {[
+                  { label: '₹1 Lakh', val: 100000 },
+                  { label: '₹3 Lakh', val: 300000 },
+                  { label: '₹5 Lakh', val: 500000 },
+                  { label: '₹10 Lakh', val: 1000000 },
+                  { label: '₹15 Lakh', val: 1500000 },
+                  { label: '₹25 Lakh', val: 2500000 },
+                ].map((item) => (
+                  <button
+                    key={item.val}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, projectCost: item.val }))}
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                      formData.projectCost === item.val
+                        ? 'bg-black text-white border-black font-semibold'
+                        : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:border-black'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}

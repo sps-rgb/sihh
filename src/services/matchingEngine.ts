@@ -1,4 +1,4 @@
-import { Scheme, UserProfile, MatchResult, EligibilityStatus, normalizeStateName } from '@/types';
+import { Scheme, UserProfile, MatchResult, EligibilityStatus, normalizeStateName, formatCurrency } from '@/types';
 import { incomeRangeToMaxValue } from '@/types';
 import { getAllSchemes } from './schemeService';
 
@@ -97,9 +97,9 @@ export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchRe
     const userIncomeMax = incomeRangeToMaxValue(profile.annualIncome);
     if (userIncomeMax <= elig.maxAnnualIncome) {
       score += 20;
-      matchedConditions.push(`Income is within the required limit (Up to ₹${elig.maxAnnualIncome} lakhs).`);
+      matchedConditions.push(`Income is within the required limit (Up to ${formatCurrency(elig.maxAnnualIncome)}).`);
     } else {
-      failedConditions.push(`Income exceeds the scheme limit of ₹${elig.maxAnnualIncome} lakhs.`);
+      failedConditions.push(`Income exceeds the scheme limit of ${formatCurrency(elig.maxAnnualIncome)}.`);
       hasSoftFailure = true;
     }
   } else {
@@ -125,9 +125,9 @@ export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchRe
   if (elig.maxProjectCost !== undefined && elig.maxProjectCost !== null && profile.projectCost !== undefined && profile.projectCost !== null) {
     if (profile.projectCost <= elig.maxProjectCost) {
       score += 15;
-      matchedConditions.push(`Project cost (₹${profile.projectCost} lakh) is within the maximum limit (₹${elig.maxProjectCost} lakh).`);
+      matchedConditions.push(`Project cost (${formatCurrency(profile.projectCost)}) is within the maximum limit (${formatCurrency(elig.maxProjectCost)}).`);
     } else {
-      failedConditions.push(`Project cost (₹${profile.projectCost} lakh) exceeds scheme limit of ₹${elig.maxProjectCost} lakh.`);
+      failedConditions.push(`Project cost (${formatCurrency(profile.projectCost)}) exceeds scheme limit of ${formatCurrency(elig.maxProjectCost)}.`);
       hasSoftFailure = true;
     }
   } else {

@@ -12,4 +12,5 @@ export {
 } from "./userProfile";
 export type { MatchResult, EligibilityStatus } from "./matchResult";
 export { normalizeStateName, STATE_ALIASES } from "@/utils/stateMapping";
+export { formatCurrency } from "@/utils/formatCurrency";
 
