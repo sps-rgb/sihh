@@ -1,75 +1,87 @@
 import Link from 'next/link';
-import { Search, BarChart3, MessageCircle } from 'lucide-react';
+import { Search, ShieldCheck, Sparkles, ArrowRight, Layers } from 'lucide-react';
 import Disclaimer from '@/components/Disclaimer';
 
 export default function Home() {
   return (
-    <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">
+    <div className="flex flex-col max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 w-full space-y-12">
+      {/* Minimalist Hero Section */}
+      <section className="bg-white border border-neutral-200 rounded-3xl p-8 sm:p-14 lg:p-16 text-center shadow-sm relative overflow-hidden">
+        <div className="max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-semibold text-neutral-800 mb-6">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>AI-Driven Government Scheme Matching</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-neutral-950 tracking-tight mb-6 leading-tight">
             Find Government Schemes That Match You
           </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Tell us about yourself and your business. We'll identify schemes that may be relevant to you.
+          
+          <p className="text-lg sm:text-xl text-neutral-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Tell us about yourself and your business. We'll evaluate structured criteria and identify eligible schemes with full transparency.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link 
               href="/scheme-finder" 
-              className="inline-flex justify-center items-center px-8 py-3.5 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-all"
+              className="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-8 py-4 rounded-full text-base font-semibold text-white bg-black hover:bg-neutral-800 shadow-md transition-all"
             >
-              Find My Schemes
+              <span>Find My Schemes</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <Link 
               href="/chat" 
-              className="inline-flex justify-center items-center px-8 py-3.5 border-2 border-blue-600 text-base font-medium rounded-lg text-blue-700 bg-transparent hover:bg-blue-50 transition-all"
+              className="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-8 py-4 rounded-full text-base font-semibold text-neutral-900 bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 transition-all"
             >
-              Ask AI Assistant
+              <Sparkles className="w-4 h-4" />
+              <span>Ask AI Assistant</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 p-8 rounded-2xl border border-gray-100">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6 text-blue-600">
-                <Search className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Smart Matching</h3>
-              <p className="text-gray-600 leading-relaxed">
-                We compare your profile against scheme eligibility criteria to find the best matches.
-              </p>
+      {/* Minimalist Features Section */}
+      <section className="space-y-6">
+        <div className="text-center max-w-xl mx-auto">
+          <h2 className="text-2xl font-bold text-neutral-900 tracking-tight">How It Works</h2>
+          <p className="text-sm text-neutral-500 mt-1">Simple, deterministic, and explainable assistance for entrepreneurs.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-8 rounded-3xl border border-neutral-200 hover:border-black transition-all shadow-sm">
+            <div className="w-12 h-12 bg-neutral-100 text-neutral-900 rounded-2xl flex items-center justify-center mb-6 border border-neutral-200">
+              <Search className="w-5 h-5" />
             </div>
-            
-            <div className="bg-gray-50 p-8 rounded-2xl border border-gray-100">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-6 text-green-600">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Transparent Results</h3>
-              <p className="text-gray-600 leading-relaxed">
-                See exactly why each scheme was recommended with a detailed eligibility breakdown.
-              </p>
+            <h3 className="text-lg font-bold text-neutral-900 mb-2">1. Smart Matching</h3>
+            <p className="text-sm text-neutral-600 leading-relaxed">
+              We evaluate your demographic, business sector, state, and income criteria against structured scheme rules.
+            </p>
+          </div>
+          
+          <div className="bg-white p-8 rounded-3xl border border-neutral-200 hover:border-black transition-all shadow-sm">
+            <div className="w-12 h-12 bg-neutral-100 text-neutral-900 rounded-2xl flex items-center justify-center mb-6 border border-neutral-200">
+              <ShieldCheck className="w-5 h-5" />
             </div>
-            
-            <div className="bg-gray-50 p-8 rounded-2xl border border-gray-100">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6 text-purple-600">
-                <MessageCircle className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">AI Assistant</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Ask questions about any scheme and get instant answers based on scheme data.
-              </p>
+            <h3 className="text-lg font-bold text-neutral-900 mb-2">2. Transparent Results</h3>
+            <p className="text-sm text-neutral-600 leading-relaxed">
+              Clear explainable scoring showing matched conditions and specific eligibility criteria without black-box guessing.
+            </p>
+          </div>
+          
+          <div className="bg-white p-8 rounded-3xl border border-neutral-200 hover:border-black transition-all shadow-sm">
+            <div className="w-12 h-12 bg-neutral-100 text-neutral-900 rounded-2xl flex items-center justify-center mb-6 border border-neutral-200">
+              <Layers className="w-5 h-5" />
             </div>
+            <h3 className="text-lg font-bold text-neutral-900 mb-2">3. Contextual Assistant</h3>
+            <p className="text-sm text-neutral-600 leading-relaxed">
+              Ask scheme-specific questions about required documents, loan caps, interest subsidies, and application steps.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Disclaimer Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+      {/* Demo Disclaimer */}
+      <div>
         <Disclaimer />
       </div>
     </div>

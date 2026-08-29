@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, MessageSquare, ArrowRight } from 'lucide-react';
-import { GENDERS, CATEGORIES, BUSINESS_STATUSES, BUSINESS_TYPES, INDIAN_STATES } from '@/types';
+import { Loader2, Sparkles, ArrowRight } from 'lucide-react';
+import { STATE_ALIASES, normalizeStateName, INDIAN_STATES } from '@/types';
 import type { UserProfile } from '@/types';
+import Disclaimer from '@/components/Disclaimer';
 
 export default function ChatModePage() {
   const router = useRouter();
@@ -26,11 +27,11 @@ export default function ChatModePage() {
     if (ageMatch) profile.age = parseInt(ageMatch[1], 10);
 
     // Gender
-    const genderMatch = text.match(/\b(woman|female|man|male)\b/i);
+    const genderMatch = text.match(/\b(woman|female|women|man|male|men)\b/i);
     if (genderMatch) {
       const g = genderMatch[1].toLowerCase();
-      if (g === 'woman' || g === 'female') profile.gender = 'Female';
-      else if (g === 'man' || g === 'male') profile.gender = 'Male';
+      if (['woman', 'female', 'women'].includes(g)) profile.gender = 'Female';
+      else if (['man', 'male', 'men'].includes(g)) profile.gender = 'Male';
     }
 
     // Category
@@ -42,15 +43,24 @@ export default function ChatModePage() {
       else profile.category = 'General';
     }
 
-    // State (simple inclusion)
-    for (const state of INDIAN_STATES) {
-      if (text.toLowerCase().includes(state.toLowerCase())) {
-        profile.state = state;
+    // State extraction with abbreviation/alias support (e.g. UP, HR, DL, MP, RJ)
+    for (const [alias, fullState] of Object.entries(STATE_ALIASES)) {
+      const pattern = new RegExp(`\\b${alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (pattern.test(text)) {
+        profile.state = fullState;
         break;
       }
     }
+    if (!profile.state) {
+      for (const state of INDIAN_STATES) {
+        if (text.toLowerCase().includes(state.toLowerCase())) {
+          profile.state = state;
+          break;
+        }
+      }
+    }
 
-    // Business Type (simple keyword match)
+    // Business Type
     const lowerText = text.toLowerCase();
     if (lowerText.includes('farm') || lowerText.includes('agri')) profile.businessType = 'Agriculture';
     else if (lowerText.includes('manufactur')) profile.businessType = 'Manufacturing';
@@ -61,7 +71,7 @@ export default function ChatModePage() {
     else if (lowerText.includes('handicraft') || lowerText.includes('craft') || lowerText.includes('artisan')) profile.businessType = 'Handicrafts';
     else if (lowerText.includes('tech') || lowerText.includes('software')) profile.businessType = 'Other';
     
-    // Project Cost / Loan Requirement (Look for numbers near lakh/lac or just large numbers)
+    // Project Cost / Loan Requirement
     const lakhMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:lakh|lac)s?/i);
     if (lakhMatch) {
       profile.projectCost = parseFloat(lakhMatch[1]) * 100000;
@@ -77,7 +87,7 @@ export default function ChatModePage() {
 
   const handleAnalyze = () => {
     if (!inputText.trim()) {
-      setError('Please describe your profile and needs.');
+      setError('Please describe your profile and business needs.');
       return;
     }
 
@@ -85,12 +95,12 @@ export default function ChatModePage() {
     setIsAnalyzing(true);
     setExtractedProfile(null);
 
-    // Simulate API delay for parsing
+    // Simulate analysis delay
     setTimeout(() => {
       const extracted = parseTextClientSide(inputText);
       setExtractedProfile(extracted);
       setIsAnalyzing(false);
-    }, 1500);
+    }, 1000);
   };
 
   const handleMatch = async () => {
@@ -103,7 +113,7 @@ export default function ChatModePage() {
       const response = await fetch('/api/match-schemes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(extractedProfile), // In a real app, you'd ensure missing required fields are handled
+        body: JSON.stringify(extractedProfile),
       });
 
       if (!response.ok) {
@@ -123,107 +133,106 @@ export default function ChatModePage() {
   };
 
   return (
-    <div className="flex-1 bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-4 flex items-center justify-center gap-3">
-            <MessageSquare className="w-8 h-8 text-blue-600" />
-            AI Scheme Assistant
-          </h1>
-          <p className="text-lg text-gray-600">
-            Describe yourself and your business needs, and we'll help you find relevant schemes.
-          </p>
+    <div className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto w-full space-y-8">
+      <div className="text-center space-y-2">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-semibold text-neutral-800 mb-2">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Mode B • Conversational Input</span>
         </div>
+        <h1 className="text-3xl font-extrabold text-neutral-900 tracking-tight">
+          AI Scheme Assistant
+        </h1>
+        <p className="text-sm text-neutral-500 max-w-md mx-auto">
+          Describe yourself and your business venture in plain text, and we'll extract your parameters automatically.
+        </p>
+      </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-8 text-sm text-amber-800">
-          <p className="font-medium">⚠️ This NLP feature is a placeholder/demo.</p>
-          <p>For the most accurate and reliable results in this MVP, please use the <Link href="/scheme-finder" className="underline font-bold hover:text-amber-900">structured form</Link>.</p>
+      <div className="bg-white shadow-sm border border-neutral-200 rounded-3xl p-6 sm:p-8 space-y-4">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          Describe Yourself
+        </label>
+        <textarea
+          rows={5}
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          className="w-full rounded-2xl border border-neutral-300 p-4 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black text-neutral-900 placeholder:text-neutral-400 bg-neutral-50/50"
+          placeholder="e.g. I am a 28 year old woman from UP. I want to start a tailoring business requiring a loan of 4 lakh. I belong to SC category."
+        />
+        
+        {error && <p className="text-xs text-neutral-800 font-semibold">{error}</p>}
+        
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+          <span className="text-xs text-neutral-400">Supports state abbreviations (UP, HR, DL, etc.)</span>
+          <button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing || !inputText.trim()}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-black text-white rounded-full font-medium text-xs hover:bg-neutral-800 transition-all disabled:opacity-50"
+          >
+            {isAnalyzing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            <span>{isAnalyzing ? 'Analyzing...' : 'Analyze My Profile'}</span>
+          </button>
         </div>
+      </div>
 
-        <div className="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden mb-8">
-          <div className="p-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tell us about yourself (Try: "I am a 25 year old woman from Maharashtra. I want to start a retail shop and need a loan of 5 lakhs. I belong to OBC category.")
-            </label>
-            <textarea
-              rows={6}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-              placeholder="Describe your profile here..."
-            />
-            
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={handleAnalyze}
-                disabled={isAnalyzing || !inputText.trim()}
-                className="flex items-center gap-2 px-6 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
-              >
-                {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isAnalyzing ? 'Analyzing...' : 'Analyze My Profile'}
-              </button>
-            </div>
+      {extractedProfile && (
+        <div className="bg-white shadow-sm border border-neutral-200 rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom-3">
+          <div className="p-6 bg-neutral-50 border-b border-neutral-200">
+            <h2 className="text-base font-bold text-neutral-900">Extracted Profile Parameters</h2>
+            <p className="text-xs text-neutral-500">Review the parameters detected from your text before evaluating schemes.</p>
           </div>
-        </div>
-
-        {extractedProfile && (
-          <div className="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4">
-            <div className="p-6 bg-blue-50 border-b border-blue-100">
-              <h2 className="text-xl font-bold text-gray-900">Extracted Information</h2>
-              <p className="text-sm text-gray-600">Here's what we understood from your text.</p>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-8">
-                <div>
-                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Age</span>
-                  <span className="font-semibold text-gray-900">{extractedProfile.age || 'Not detected'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Gender</span>
-                  <span className="font-semibold text-gray-900">{extractedProfile.gender || 'Not detected'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Category</span>
-                  <span className="font-semibold text-gray-900">{extractedProfile.category || 'Not detected'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">State</span>
-                  <span className="font-semibold text-gray-900">{extractedProfile.state || 'Not detected'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Business Type</span>
-                  <span className="font-semibold text-gray-900">{extractedProfile.businessType || 'Not detected'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Loan Required</span>
-                  <span className="font-semibold text-gray-900">
-                    {extractedProfile.projectCost ? `₹${extractedProfile.projectCost.toLocaleString()}` : 'Not detected'}
-                  </span>
-                </div>
+          <div className="p-6 sm:p-8 space-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+              <div className="bg-neutral-50 p-3.5 rounded-2xl border border-neutral-100">
+                <span className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Age</span>
+                <span className="font-bold text-neutral-900">{extractedProfile.age ? `${extractedProfile.age} yrs` : 'Not detected'}</span>
               </div>
-
-              <button
-                onClick={handleMatch}
-                disabled={isMatching}
-                className="w-full flex justify-center items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors disabled:opacity-70"
-              >
-                {isMatching ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Finding Matches...
-                  </>
-                ) : (
-                  <>
-                    Find Matching Schemes
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
+              <div className="bg-neutral-50 p-3.5 rounded-2xl border border-neutral-100">
+                <span className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Gender</span>
+                <span className="font-bold text-neutral-900">{extractedProfile.gender || 'Not detected'}</span>
+              </div>
+              <div className="bg-neutral-50 p-3.5 rounded-2xl border border-neutral-100">
+                <span className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Category</span>
+                <span className="font-bold text-neutral-900">{extractedProfile.category || 'Not detected'}</span>
+              </div>
+              <div className="bg-neutral-50 p-3.5 rounded-2xl border border-neutral-100">
+                <span className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">State</span>
+                <span className="font-bold text-neutral-900">{extractedProfile.state || 'Not detected'}</span>
+              </div>
+              <div className="bg-neutral-50 p-3.5 rounded-2xl border border-neutral-100">
+                <span className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Sector</span>
+                <span className="font-bold text-neutral-900">{extractedProfile.businessType || 'Not detected'}</span>
+              </div>
+              <div className="bg-neutral-50 p-3.5 rounded-2xl border border-neutral-100">
+                <span className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Project Cost</span>
+                <span className="font-bold text-neutral-900">
+                  {extractedProfile.projectCost ? `₹${extractedProfile.projectCost.toLocaleString()}` : 'Not detected'}
+                </span>
+              </div>
             </div>
+
+            <button
+              onClick={handleMatch}
+              disabled={isMatching}
+              className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-black text-white rounded-full font-semibold text-sm hover:bg-neutral-800 transition-all disabled:opacity-60 shadow-sm"
+            >
+              {isMatching ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Evaluating Schemes...</span>
+                </>
+              ) : (
+                <>
+                  <span>Find Matching Schemes</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </div>
-        )}
+        </div>
+      )}
+
+      <div>
+        <Disclaimer />
       </div>
     </div>
   );

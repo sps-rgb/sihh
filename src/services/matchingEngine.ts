@@ -1,4 +1,4 @@
-import { Scheme, UserProfile, MatchResult, EligibilityStatus } from '@/types';
+import { Scheme, UserProfile, MatchResult, EligibilityStatus, normalizeStateName } from '@/types';
 import { incomeRangeToMaxValue } from '@/types';
 import { getAllSchemes } from './schemeService';
 
@@ -78,10 +78,11 @@ export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchRe
   }
 
   // State check (Mandatory, 10 points)
-  if (elig.states && elig.states.length > 0 && !elig.states.includes('ALL') && profile.state) {
-    if (elig.states.includes(profile.state)) {
+  const normalizedState = normalizeStateName(profile.state || '');
+  if (elig.states && elig.states.length > 0 && !elig.states.includes('ALL') && normalizedState) {
+    if (elig.states.includes(normalizedState)) {
       score += 10;
-      matchedConditions.push(`State eligibility met (${profile.state}).`);
+      matchedConditions.push(`State eligibility met (${normalizedState}).`);
     } else {
       failedConditions.push(`Scheme is limited to specific states: ${elig.states.join(', ')}.`);
       hasMandatoryFailure = true;

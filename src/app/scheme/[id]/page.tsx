@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronLeft, ExternalLink, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Sparkles, X, MessageSquare } from 'lucide-react';
 import type { Scheme, MatchResult, UserProfile } from '@/types';
 import MatchBadge from '@/components/MatchBadge';
 import EligibilityBreakdown from '@/components/EligibilityBreakdown';
@@ -53,18 +53,22 @@ export default function SchemeDetailPage({ params }: { params: { id: string } })
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex-1 flex flex-col justify-center items-center py-24 space-y-4">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-neutral-300 border-t-black"></div>
+        <p className="text-sm font-medium text-neutral-500">Loading scheme details...</p>
       </div>
     );
   }
 
   if (!scheme) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Scheme Not Found</h2>
-        <p className="text-gray-600 mb-8">The requested scheme could not be found.</p>
-        <button onClick={() => router.back()} className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700">
+      <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center max-w-md mx-auto">
+        <h2 className="text-2xl font-bold text-neutral-900 mb-2">Scheme Not Found</h2>
+        <p className="text-sm text-neutral-500 mb-8">The requested scheme could not be found or has been removed.</p>
+        <button 
+          onClick={() => router.back()} 
+          className="px-8 py-3.5 bg-black text-white rounded-full font-medium text-sm hover:bg-neutral-800 transition-all shadow-sm"
+        >
           Go Back
         </button>
       </div>
@@ -72,48 +76,55 @@ export default function SchemeDetailPage({ params }: { params: { id: string } })
   }
 
   return (
-    <div className="flex-1 bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 relative">
-      <div className={`max-w-5xl mx-auto transition-all duration-300 ${isChatOpen ? 'lg:pr-96' : ''}`}>
+    <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full relative">
+      <div className={`transition-all duration-300 ${isChatOpen ? 'lg:pr-96' : ''}`}>
         <button 
           onClick={() => router.back()}
-          className="flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-black mb-6 transition-colors px-3 py-1.5 rounded-full hover:bg-neutral-100"
         >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Back to Results
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Results</span>
         </button>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-          <div className="p-6 sm:p-8 border-b border-gray-200">
+        <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden mb-10">
+          {/* Top Banner */}
+          <div className="p-6 sm:p-10 border-b border-neutral-200">
             <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
-              <h1 className="text-3xl font-extrabold text-gray-900">{scheme.name}</h1>
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">{scheme.ministry}</span>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight mt-1">{scheme.name}</h1>
+              </div>
               {matchResult && (
                 <div className="mt-1 flex-shrink-0">
-                  <MatchBadge status={matchResult.status} score={matchResult.score} />
+                  <MatchBadge status={matchResult.status} score={matchResult.score} showScore={true} />
                 </div>
               )}
             </div>
-            <p className="text-lg text-gray-700 leading-relaxed">{scheme.description}</p>
+            <p className="text-base text-neutral-600 leading-relaxed mt-2">{scheme.description}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-gray-200 divide-y md:divide-y-0 md:divide-x divide-gray-200 bg-gray-50">
+          {/* Key Financial Terms */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-neutral-200 divide-y md:divide-y-0 md:divide-x divide-neutral-200 bg-neutral-50">
             <div className="p-6">
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Max Loan Amount</h3>
-              <p className="text-xl font-bold text-gray-900">{scheme.maximumLoanAmount ? `₹${scheme.maximumLoanAmount.toLocaleString()}` : 'N/A'}</p>
+              <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Max Loan Amount</h3>
+              <p className="text-xl font-bold text-neutral-900">{scheme.maximumLoanAmount ? `₹${scheme.maximumLoanAmount.toLocaleString()}` : 'N/A'}</p>
             </div>
             <div className="p-6">
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Interest Rate</h3>
-              <p className="text-xl font-bold text-gray-900">{scheme.interestRate || 'N/A'}</p>
+              <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Interest Rate</h3>
+              <p className="text-xl font-bold text-neutral-900">{scheme.interestRate || 'N/A'}</p>
             </div>
             <div className="p-6">
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Tenure</h3>
-              <p className="text-xl font-bold text-gray-900">{scheme.repaymentTenure || 'N/A'}</p>
+              <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">Repayment Tenure</h3>
+              <p className="text-xl font-bold text-neutral-900">{scheme.repaymentTenure || 'N/A'}</p>
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 space-y-10">
+          {/* Body Sections */}
+          <div className="p-6 sm:p-10 space-y-10">
             {matchResult && (
-              <section className="bg-blue-50 border border-blue-100 rounded-lg p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Your Eligibility Assessment</h2>
+              <section className="bg-neutral-50 border border-neutral-200 rounded-3xl p-6 sm:p-8">
+                <h2 className="text-lg font-bold text-neutral-900 mb-2">Your Eligibility Assessment</h2>
+                <p className="text-xs text-neutral-500 mb-4">Detailed condition checks based on your submitted profile.</p>
                 <EligibilityBreakdown 
                   matchedConditions={matchResult.matchedConditions}
                   failedConditions={matchResult.failedConditions}
@@ -123,94 +134,103 @@ export default function SchemeDetailPage({ params }: { params: { id: string } })
             )}
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Who Can Apply</h2>
-              <p className="text-gray-700">{scheme.targetBeneficiaries}</p>
+              <h2 className="text-lg font-bold text-neutral-900 mb-3 pb-2 border-b border-neutral-100">Target Beneficiaries</h2>
+              <p className="text-neutral-700 text-sm leading-relaxed">{scheme.targetBeneficiaries}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Eligibility Criteria</h2>
-              <ul className="list-disc pl-5 space-y-2 text-gray-700">
-                {scheme.eligibility.minAge && <li>Minimum Age: {scheme.eligibility.minAge}</li>}
-                {scheme.eligibility.maxAge && <li>Maximum Age: {scheme.eligibility.maxAge}</li>}
+              <h2 className="text-lg font-bold text-neutral-900 mb-3 pb-2 border-b border-neutral-100">Eligibility Criteria</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-neutral-700">
+                {scheme.eligibility.minAge && <li className="bg-neutral-50 p-3 rounded-2xl border border-neutral-100">• Min Age: <span className="font-semibold">{scheme.eligibility.minAge} years</span></li>}
+                {scheme.eligibility.maxAge && <li className="bg-neutral-50 p-3 rounded-2xl border border-neutral-100">• Max Age: <span className="font-semibold">{scheme.eligibility.maxAge} years</span></li>}
                 {scheme.eligibility.genders && scheme.eligibility.genders.length > 0 && (
-                  <li>Gender: {scheme.eligibility.genders.join(', ')}</li>
+                  <li className="bg-neutral-50 p-3 rounded-2xl border border-neutral-100">• Genders: <span className="font-semibold">{scheme.eligibility.genders.join(', ')}</span></li>
                 )}
                 {scheme.eligibility.categories && scheme.eligibility.categories.length > 0 && (
-                  <li>Category: {scheme.eligibility.categories.join(', ')}</li>
+                  <li className="bg-neutral-50 p-3 rounded-2xl border border-neutral-100">• Categories: <span className="font-semibold">{scheme.eligibility.categories.join(', ')}</span></li>
                 )}
                 {scheme.eligibility.businessTypes && scheme.eligibility.businessTypes.length > 0 && (
-                  <li>Business Types: {scheme.eligibility.businessTypes.join(', ')}</li>
+                  <li className="bg-neutral-50 p-3 rounded-2xl border border-neutral-100 col-span-1 sm:col-span-2">• Business Sectors: <span className="font-semibold">{scheme.eligibility.businessTypes.join(', ')}</span></li>
                 )}
-                {scheme.eligibility.maxAnnualIncome && <li>Maximum Annual Income: ₹{scheme.eligibility.maxAnnualIncome.toLocaleString()}</li>}
-                {scheme.eligibility.maxProjectCost && <li>Maximum Project Cost: ₹{scheme.eligibility.maxProjectCost.toLocaleString()}</li>}
-                <li>New Business: {scheme.eligibility.newBusinessAllowed ? 'Allowed' : 'Not Allowed'}</li>
-                <li>Existing Business: {scheme.eligibility.existingBusinessAllowed ? 'Allowed' : 'Not Allowed'}</li>
+                {scheme.eligibility.maxAnnualIncome && (
+                  <li className="bg-neutral-50 p-3 rounded-2xl border border-neutral-100">• Max Income: <span className="font-semibold">₹{scheme.eligibility.maxAnnualIncome.toLocaleString()}</span></li>
+                )}
+                {scheme.eligibility.maxProjectCost && (
+                  <li className="bg-neutral-50 p-3 rounded-2xl border border-neutral-100">• Max Project Cost: <span className="font-semibold">₹{scheme.eligibility.maxProjectCost.toLocaleString()}</span></li>
+                )}
               </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Benefits</h2>
-              <ul className="list-disc pl-5 space-y-2 text-gray-700">
+              <h2 className="text-lg font-bold text-neutral-900 mb-3 pb-2 border-b border-neutral-100">Key Benefits</h2>
+              <ul className="space-y-2 text-sm text-neutral-700">
                 {scheme.benefits.map((b, idx) => (
-                  <li key={idx}>{b}</li>
+                  <li key={idx} className="flex items-start gap-2.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black mt-2 flex-shrink-0" />
+                    <span>{b}</span>
+                  </li>
                 ))}
               </ul>
             </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Required Documents</h2>
-                <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+                <h2 className="text-lg font-bold text-neutral-900 mb-3 pb-2 border-b border-neutral-100">Required Documents</h2>
+                <ol className="space-y-2 text-sm text-neutral-700">
                   {scheme.documents.map((doc, idx) => (
-                    <li key={idx}>{doc}</li>
+                    <li key={idx} className="flex items-start gap-2.5">
+                      <span className="text-xs font-bold text-neutral-400 mt-0.5">{idx + 1}.</span>
+                      <span>{doc}</span>
+                    </li>
                   ))}
                 </ol>
               </section>
 
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">How to Apply</h2>
-                <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+                <h2 className="text-lg font-bold text-neutral-900 mb-3 pb-2 border-b border-neutral-100">How to Apply</h2>
+                <ol className="space-y-2 text-sm text-neutral-700">
                   {scheme.applicationProcess.map((step, idx) => (
-                    <li key={idx}>{step}</li>
+                    <li key={idx} className="flex items-start gap-2.5">
+                      <span className="text-xs font-bold text-neutral-400 mt-0.5">{idx + 1}.</span>
+                      <span>{step}</span>
+                    </li>
                   ))}
                 </ol>
               </section>
             </div>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Coverage</h2>
-              <p className="text-gray-700">
-                {scheme.stateCoverage}
-              </p>
+              <h2 className="text-lg font-bold text-neutral-900 mb-3 pb-2 border-b border-neutral-100">State Coverage</h2>
+              <p className="text-neutral-700 text-sm">{scheme.stateCoverage}</p>
             </section>
           </div>
           
-          <div className="bg-gray-50 p-6 sm:p-8 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+          <div className="bg-neutral-50 p-6 sm:p-10 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-neutral-500">
             <div>
-              <span className="block mb-1">Source (Mock): <a href="#" className="text-blue-600 hover:underline flex items-center gap-1 inline-flex">https://india.gov.in/scheme/{scheme.id} <ExternalLink className="w-3 h-3" /></a></span>
-              <span>Last Updated: {new Date(scheme.lastUpdated).toLocaleDateString()}</span>
+              <span className="block mb-1 font-medium">Source Reference: <span className="text-neutral-800 underline inline-flex items-center gap-1">Fictional Demo Authority <ExternalLink className="w-3 h-3" /></span></span>
+              <span>Last Verified: {new Date(scheme.lastUpdated).toLocaleDateString()}</span>
             </div>
-            <Disclaimer className="w-full sm:w-auto mt-4 sm:mt-0 max-w-md text-xs py-2 px-3" />
+            <Disclaimer className="w-full sm:w-auto mt-4 sm:mt-0 max-w-md text-xs py-2.5 px-3.5" />
           </div>
         </div>
       </div>
 
-      {/* Chat Interface */}
+      {/* Chat Drawer */}
       {isChatOpen ? (
-        <div className="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-40 border-l border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out">
-          <div className="p-4 bg-gray-100 flex justify-between items-center border-b border-gray-200">
-            <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-blue-600" />
-              Scheme Assistant
+        <div className="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-50 border-l border-neutral-200 flex flex-col transform transition-all duration-300 ease-in-out">
+          <div className="p-4 bg-neutral-900 text-white flex justify-between items-center">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-neutral-300" />
+              <span>AI Scheme Assistant</span>
             </h3>
             <button 
               onClick={() => setIsChatOpen(false)}
-              className="text-gray-500 hover:text-gray-900 bg-white rounded-full p-1 border border-gray-200"
+              className="text-neutral-400 hover:text-white bg-white/10 rounded-full p-1.5 transition-colors"
             >
-              <ChevronLeft className="w-5 h-5 transform rotate-180" />
+              <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex-1 overflow-hidden p-2">
+          <div className="flex-1 overflow-hidden p-3 bg-neutral-100/50">
             <ChatBox 
               schemeId={scheme.id} 
               schemeName={scheme.name} 
@@ -222,10 +242,10 @@ export default function SchemeDetailPage({ params }: { params: { id: string } })
       ) : (
         <button
           onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all z-40 flex items-center gap-3 animate-bounce"
+          className="fixed bottom-8 right-8 bg-black text-white px-6 py-3.5 rounded-full shadow-2xl hover:bg-neutral-800 transition-all z-40 flex items-center gap-2.5 border border-neutral-700"
         >
-          <MessageCircle className="w-6 h-6" />
-          <span className="font-medium hidden sm:block pr-2">Ask AI Assistant</span>
+          <MessageSquare className="w-5 h-5" />
+          <span className="font-semibold text-sm">Ask AI Assistant</span>
         </button>
       )}
     </div>

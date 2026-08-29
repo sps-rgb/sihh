@@ -1,25 +1,31 @@
-import { CheckCircle, AlertCircle, XCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 import type { EligibilityStatus } from '@/types';
 
 interface MatchBadgeProps {
   status: EligibilityStatus;
-  score: number;
+  score?: number;
+  showScore?: boolean;
 }
 
-export default function MatchBadge({ status, score }: MatchBadgeProps) {
+export default function MatchBadge({ status, score, showScore = false }: MatchBadgeProps) {
   const isEligible = status === 'Eligible';
   const isPotentiallyEligible = status === 'Potentially Eligible';
-  
-  const bgClass = isEligible ? 'bg-green-100 text-green-800 border-green-200' :
-                  isPotentiallyEligible ? 'bg-amber-100 text-amber-800 border-amber-200' :
-                  'bg-red-100 text-red-800 border-red-200';
-                  
-  const Icon = isEligible ? CheckCircle : isPotentiallyEligible ? AlertCircle : XCircle;
+
+  const badgeStyle = isEligible
+    ? 'bg-black text-white border-black'
+    : isPotentiallyEligible
+    ? 'bg-neutral-100 text-neutral-900 border-neutral-300'
+    : 'bg-white text-neutral-500 border-neutral-200';
+
+  const Icon = isEligible ? CheckCircle2 : isPotentiallyEligible ? AlertCircle : XCircle;
 
   return (
-    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-sm font-medium ${bgClass}`}>
-      <Icon className="h-4 w-4" />
-      <span>{status} ({score}%)</span>
+    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold tracking-wide ${badgeStyle}`}>
+      <Icon className="h-3.5 w-3.5" />
+      <span>
+        {status}
+        {showScore && score !== undefined ? ` • ${score}%` : ''}
+      </span>
     </div>
   );
 }

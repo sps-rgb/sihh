@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import SchemeCard from '@/components/SchemeCard';
+import Disclaimer from '@/components/Disclaimer';
 import type { MatchResult, UserProfile, Scheme } from '@/types';
+import { Sparkles, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export default function ResultsPage() {
-  const router = useRouter();
   const [matchResults, setMatchResults] = useState<MatchResult[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [schemes, setSchemes] = useState<Record<string, Scheme>>({});
@@ -49,25 +49,34 @@ export default function ResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex-1 flex flex-col justify-center items-center py-24 space-y-4">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-neutral-300 border-t-black"></div>
+        <p className="text-sm font-medium text-neutral-500">Evaluating scheme rules...</p>
       </div>
     );
   }
 
   if (!matchResults.length || !userProfile) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">No Profile Found</h2>
-        <p className="text-gray-600 mb-8">Please fill out the profile form to see your recommended schemes.</p>
-        <Link href="/scheme-finder" className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700">
-          Go to Scheme Finder
+      <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center max-w-md mx-auto">
+        <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
+          <Sparkles className="w-5 h-5 text-neutral-800" />
+        </div>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-2">No Profile Found</h2>
+        <p className="text-sm text-neutral-500 mb-8 leading-relaxed">
+          Please complete the profile questionnaire so we can evaluate your scheme eligibility.
+        </p>
+        <Link 
+          href="/scheme-finder" 
+          className="inline-flex items-center gap-2 px-8 py-3.5 bg-black text-white rounded-full font-medium text-sm hover:bg-neutral-800 transition-all shadow-sm"
+        >
+          <span>Go to Scheme Finder</span>
         </Link>
       </div>
     );
   }
 
-  // Hide "Not Eligible" by default
+  // Filter out Not Eligible by default
   const displayableResults = matchResults.filter(r => r.status !== 'Not Eligible');
   
   const eligibleCount = displayableResults.filter(r => r.status === 'Eligible').length;
@@ -79,74 +88,101 @@ export default function ResultsPage() {
   });
 
   return (
-    <div className="flex-1 bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Your Recommended Schemes</h1>
-            <p className="text-lg text-gray-600">
-              We found {displayableResults.length} schemes that may be relevant to you.
-            </p>
+    <div className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full space-y-8">
+      {/* Header section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-neutral-200 pb-6">
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Match Results</span>
+          <h1 className="text-3xl font-extrabold text-neutral-900 tracking-tight mt-1">Your Recommended Schemes</h1>
+          <p className="text-sm text-neutral-500 mt-1">
+            Found {displayableResults.length} relevant schemes for <span className="font-semibold text-neutral-800">{userProfile.state}</span> ({userProfile.category} category).
+          </p>
+        </div>
+        <Link 
+          href="/scheme-finder" 
+          className="inline-flex items-center gap-2 px-5 py-2.5 border border-neutral-300 bg-white text-neutral-800 rounded-full font-medium text-xs hover:bg-neutral-100 transition-all shadow-sm whitespace-nowrap"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Edit Profile</span>
+        </Link>
+      </div>
+
+      {displayableResults.length > 0 ? (
+        <>
+          {/* Minimalist Filter Tabs */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilter('All')}
+              className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+                filter === 'All' 
+                  ? 'bg-black text-white border-black shadow-sm' 
+                  : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+              }`}
+            >
+              All Matches ({displayableResults.length})
+            </button>
+            <button
+              onClick={() => setFilter('Eligible')}
+              className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+                filter === 'Eligible' 
+                  ? 'bg-black text-white border-black shadow-sm' 
+                  : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+              }`}
+            >
+              Eligible ({eligibleCount})
+            </button>
+            <button
+              onClick={() => setFilter('Potentially Eligible')}
+              className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+                filter === 'Potentially Eligible' 
+                  ? 'bg-black text-white border-black shadow-sm' 
+                  : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+              }`}
+            >
+              Potentially Eligible ({potentialCount})
+            </button>
           </div>
-          <Link href="/scheme-finder" className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md font-medium hover:bg-gray-50 whitespace-nowrap text-sm">
-            Start Over
+
+          {/* Cards List */}
+          <div className="space-y-6">
+            {filteredResults.length > 0 ? (
+              filteredResults.map((result) => (
+                schemes[result.schemeId] && (
+                  <SchemeCard
+                    key={result.schemeId}
+                    scheme={schemes[result.schemeId]}
+                    matchResult={result}
+                    userProfile={userProfile}
+                  />
+                )
+              ))
+            ) : (
+              <div className="bg-white rounded-3xl p-10 text-center border border-neutral-200">
+                <p className="text-sm text-neutral-500">No schemes found for the selected filter tab.</p>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 max-w-lg mx-auto shadow-sm">
+          <h3 className="text-xl font-bold text-neutral-900 mb-2">No Fully Eligible Schemes Found</h3>
+          <p className="text-sm text-neutral-500 mb-8 leading-relaxed">
+            Based on your demographic or loan criteria, none of the current mock schemes fully matched. 
+            Try updating your profile details or project requirements.
+          </p>
+          <Link 
+            href="/scheme-finder" 
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-black text-white rounded-full font-medium text-sm hover:bg-neutral-800 transition-all shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Update Profile</span>
           </Link>
         </div>
+      )}
 
-        {displayableResults.length > 0 ? (
-          <>
-            <div className="flex flex-wrap gap-2 mb-8 bg-white p-1 rounded-lg border border-gray-200 inline-flex">
-              <button
-                onClick={() => setFilter('All')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === 'All' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                All ({displayableResults.length})
-              </button>
-              <button
-                onClick={() => setFilter('Eligible')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === 'Eligible' ? 'bg-green-100 text-green-800' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                Eligible ({eligibleCount})
-              </button>
-              <button
-                onClick={() => setFilter('Potentially Eligible')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === 'Potentially Eligible' ? 'bg-amber-100 text-amber-800' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                Potentially Eligible ({potentialCount})
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {filteredResults.length > 0 ? (
-                filteredResults.map((result) => (
-                  schemes[result.schemeId] && (
-                    <SchemeCard
-                      key={result.schemeId}
-                      scheme={schemes[result.schemeId]}
-                      matchResult={result}
-                      userProfile={userProfile}
-                    />
-                  )
-                ))
-              ) : (
-                <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
-                  <p className="text-gray-600">No schemes found for the selected filter.</p>
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="bg-white rounded-lg p-10 text-center border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Matching Schemes Found</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Based on the details provided, we couldn't find any schemes you are eligible for right now. 
-              Try adjusting your profile or check back later as new schemes are added.
-            </p>
-            <Link href="/scheme-finder" className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700">
-              Update Profile
-            </Link>
-          </div>
-        )}
+      {/* Disclaimer */}
+      <div className="pt-4">
+        <Disclaimer />
       </div>
     </div>
   );

@@ -2,15 +2,24 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { GENDERS, CATEGORIES, BUSINESS_STATUSES, BUSINESS_TYPES, INCOME_RANGES, INDIAN_STATES } from '@/types';
-import type { UserProfile, Gender, Category, BusinessStatus, BusinessType, IncomeRange } from '@/types';
-import { Loader2 } from 'lucide-react';
+import { 
+  GENDERS, 
+  CATEGORIES, 
+  BUSINESS_STATUSES, 
+  BUSINESS_TYPES, 
+  INCOME_RANGES, 
+  INDIAN_STATES, 
+  normalizeStateName 
+} from '@/types';
+import type { UserProfile } from '@/types';
+import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles } from 'lucide-react';
 
 export default function ProfileForm() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [stateInput, setStateInput] = useState('');
 
   const [formData, setFormData] = useState<Partial<UserProfile>>({
     existingBusiness: false,
@@ -30,10 +39,47 @@ export default function ProfileForm() {
     setFormData((prev) => ({ ...prev, [name]: parsedValue }));
   };
 
+  const handleStateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    setStateInput(rawVal);
+
+    // Auto-map abbreviations like 'UP' -> 'Uttar Pradesh', 'HR' -> 'Haryana'
+    const normalized = normalizeStateName(rawVal);
+    if (INDIAN_STATES.includes(normalized)) {
+      setFormData((prev) => ({ ...prev, state: normalized }));
+    } else {
+      setFormData((prev) => ({ ...prev, state: rawVal }));
+    }
+  };
+
+  const handleStateBlur = () => {
+    if (stateInput) {
+      const normalized = normalizeStateName(stateInput);
+      if (INDIAN_STATES.includes(normalized)) {
+        setStateInput(normalized);
+        setFormData((prev) => ({ ...prev, state: normalized }));
+      }
+    }
+  };
+
+  const selectStateFromList = (stateName: string) => {
+    setStateInput(stateName);
+    setFormData((prev) => ({ ...prev, state: stateName }));
+  };
+
   const validateStep1 = () => {
     if (!formData.age || formData.age < 18 || formData.age > 100) return 'Please enter a valid age between 18 and 100.';
     if (!formData.gender) return 'Please select a gender.';
-    if (!formData.state) return 'Please select a state.';
+    
+    // Ensure state is normalized
+    const normalizedState = normalizeStateName(formData.state || stateInput);
+    if (!normalizedState) return 'Please enter or select a state.';
+    if (!INDIAN_STATES.includes(normalizedState)) {
+      return `State "${formData.state}" not recognized. Please pick a valid Indian State/UT (e.g. UP, HR, Delhi, Maharashtra).`;
+    }
+    // Update normalized state in form
+    setFormData((prev) => ({ ...prev, state: normalizedState }));
+    
     if (!formData.category) return 'Please select a social category.';
     return '';
   };
@@ -105,24 +151,28 @@ export default function ProfileForm() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 max-w-2xl mx-auto">
-      {/* Progress Indicator */}
-      <div className="mb-8">
+    <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-10 max-w-2xl mx-auto shadow-sm">
+      {/* Step Progress Indicator */}
+      <div className="mb-10">
         <div className="flex items-center justify-between relative">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-200 rounded-full z-0"></div>
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-neutral-200 z-0"></div>
           <div 
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-blue-600 rounded-full z-0 transition-all duration-300" 
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-black z-0 transition-all duration-300" 
             style={{ width: `${((step - 1) / 2) * 100}%` }}
           ></div>
           
           {[1, 2, 3].map((num) => (
             <div key={num} className="relative z-10 flex flex-col items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${
-                step >= num ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${
+                step > num 
+                  ? 'bg-black text-white' 
+                  : step === num 
+                  ? 'bg-black text-white ring-4 ring-neutral-200' 
+                  : 'bg-white border-2 border-neutral-300 text-neutral-400'
               }`}>
-                {num}
+                {step > num ? <Check className="w-4 h-4" /> : num}
               </div>
-              <span className={`text-xs mt-2 font-medium ${step >= num ? 'text-blue-600' : 'text-gray-500'}`}>
+              <span className={`text-xs mt-2 font-medium tracking-tight ${step >= num ? 'text-black font-semibold' : 'text-neutral-400'}`}>
                 {num === 1 ? 'Personal' : num === 2 ? 'Business' : 'Financial'}
               </span>
             </div>
@@ -131,19 +181,22 @@ export default function ProfileForm() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+        <div className="mb-6 p-4 bg-neutral-100 border border-neutral-300 text-neutral-900 rounded-2xl text-sm font-medium">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
-        {/* Step 1 */}
+        {/* Step 1: Personal Details */}
         {step === 1 && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Personal Details</h3>
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+            <div>
+              <h3 className="text-2xl font-bold text-neutral-900 tracking-tight">Personal Details</h3>
+              <p className="text-sm text-neutral-500 mt-1">Provide your demographic details for accurate scheme eligibility.</p>
+            </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+              <label className="label-text">Age</label>
               <input
                 type="number"
                 name="age"
@@ -151,18 +204,18 @@ export default function ProfileForm() {
                 onChange={handleChange}
                 min="18"
                 max="100"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. 25"
+                className="input-field"
+                placeholder="e.g. 28"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <label className="label-text">Gender</label>
               <select
                 name="gender"
                 value={formData.gender || ''}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="">Select Gender</option>
                 {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
@@ -170,25 +223,56 @@ export default function ProfileForm() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-              <select
-                name="state"
-                value={formData.state || ''}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select State</option>
-                {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="label-text mb-0">State / Union Territory</label>
+                <span className="text-xs text-neutral-400 font-medium">Shortcuts: UP, HR, DL, MP, RJ, MH, etc.</span>
+              </div>
+              
+              <div className="relative">
+                <input
+                  type="text"
+                  list="indian-states-list"
+                  value={stateInput || formData.state || ''}
+                  onChange={handleStateChange}
+                  onBlur={handleStateBlur}
+                  className="input-field"
+                  placeholder="Type state name or code (e.g. UP, HR, Maharashtra)"
+                  autoComplete="off"
+                />
+                <datalist id="indian-states-list">
+                  {INDIAN_STATES.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+              </div>
+
+              {/* Quick shortcut pills */}
+              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                <span className="text-xs text-neutral-400 self-center mr-1">Quick pick:</span>
+                {['UP', 'HR', 'Delhi', 'MP', 'Rajasthan', 'Maharashtra', 'Bihar', 'Gujarat'].map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => selectStateFromList(normalizeStateName(st))}
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                      formData.state === normalizeStateName(st)
+                        ? 'bg-black text-white border-black font-semibold'
+                        : 'bg-neutral-50 text-neutral-700 border-neutral-200 hover:border-black'
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Social Category</label>
+              <label className="label-text">Social Category</label>
               <select
                 name="category"
                 value={formData.category || ''}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="">Select Category</option>
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -197,18 +281,21 @@ export default function ProfileForm() {
           </div>
         )}
 
-        {/* Step 2 */}
+        {/* Step 2: Business Details */}
         {step === 2 && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Business Details</h3>
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+            <div>
+              <h3 className="text-2xl font-bold text-neutral-900 tracking-tight">Business Details</h3>
+              <p className="text-sm text-neutral-500 mt-1">Tell us about your venture, industry, and current operations.</p>
+            </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Employment / Business Status</label>
+              <label className="label-text">Employment / Business Status</label>
               <select
                 name="businessStatus"
                 value={formData.businessStatus || ''}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="">Select Status</option>
                 {BUSINESS_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -216,60 +303,109 @@ export default function ProfileForm() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Business Type / Industry</label>
+              <label className="label-text">Business Sector / Industry</label>
               <select
                 name="businessType"
                 value={formData.businessType || ''}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
-                <option value="">Select Industry</option>
+                <option value="">Select Sector</option>
                 {BUSINESS_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Do you have an existing business?</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="existingBusiness" value="true" checked={formData.existingBusiness === true} onChange={handleChange} className="text-blue-600 focus:ring-blue-500" />
-                  <span>Yes</span>
+              <label className="label-text">Do you have an existing business?</label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                  formData.existingBusiness === true 
+                    ? 'border-black bg-neutral-900 text-white font-semibold' 
+                    : 'border-neutral-200 bg-neutral-50/50 hover:bg-neutral-100 text-neutral-800'
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="existingBusiness" 
+                    value="true" 
+                    checked={formData.existingBusiness === true} 
+                    onChange={handleChange} 
+                    className="sr-only" 
+                  />
+                  <span>Yes, Existing</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="existingBusiness" value="false" checked={formData.existingBusiness === false} onChange={handleChange} className="text-blue-600 focus:ring-blue-500" />
-                  <span>No</span>
+                
+                <label className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                  formData.existingBusiness === false 
+                    ? 'border-black bg-neutral-900 text-white font-semibold' 
+                    : 'border-neutral-200 bg-neutral-50/50 hover:bg-neutral-100 text-neutral-800'
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="existingBusiness" 
+                    value="false" 
+                    checked={formData.existingBusiness === false} 
+                    onChange={handleChange} 
+                    className="sr-only" 
+                  />
+                  <span>No, New Startup</span>
                 </label>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Do you currently have a business loan?</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="existingLoan" value="true" checked={formData.existingLoan === true} onChange={handleChange} className="text-blue-600 focus:ring-blue-500" />
-                  <span>Yes</span>
+              <label className="label-text">Do you currently have an outstanding business loan?</label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                  formData.existingLoan === true 
+                    ? 'border-black bg-neutral-900 text-white font-semibold' 
+                    : 'border-neutral-200 bg-neutral-50/50 hover:bg-neutral-100 text-neutral-800'
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="existingLoan" 
+                    value="true" 
+                    checked={formData.existingLoan === true} 
+                    onChange={handleChange} 
+                    className="sr-only" 
+                  />
+                  <span>Yes, Active Loan</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="existingLoan" value="false" checked={formData.existingLoan === false} onChange={handleChange} className="text-blue-600 focus:ring-blue-500" />
-                  <span>No</span>
+                
+                <label className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                  formData.existingLoan === false 
+                    ? 'border-black bg-neutral-900 text-white font-semibold' 
+                    : 'border-neutral-200 bg-neutral-50/50 hover:bg-neutral-100 text-neutral-800'
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="existingLoan" 
+                    value="false" 
+                    checked={formData.existingLoan === false} 
+                    onChange={handleChange} 
+                    className="sr-only" 
+                  />
+                  <span>No Active Loans</span>
                 </label>
               </div>
             </div>
           </div>
         )}
 
-        {/* Step 3 */}
+        {/* Step 3: Financial Details */}
         {step === 3 && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Financial Details</h3>
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+            <div>
+              <h3 className="text-2xl font-bold text-neutral-900 tracking-tight">Financial Requirements</h3>
+              <p className="text-sm text-neutral-500 mt-1">Specify your family income range and the required project funding.</p>
+            </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Annual Family Income</label>
+              <label className="label-text">Annual Family Income</label>
               <select
                 name="annualIncome"
                 value={formData.annualIncome || ''}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="">Select Income Range</option>
                 {INCOME_RANGES.map((i) => <option key={i} value={i}>{i}</option>)}
@@ -277,51 +413,57 @@ export default function ProfileForm() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Project Cost / Loan Requirement (₹)</label>
+              <label className="label-text">Project Cost / Loan Requirement (₹)</label>
               <input
                 type="number"
                 name="projectCost"
                 value={formData.projectCost || ''}
                 onChange={handleChange}
                 min="1000"
-                step="1000"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                step="10000"
+                className="input-field"
                 placeholder="e.g. 500000"
               />
+              <span className="text-xs text-neutral-400 mt-1.5 block">
+                Enter the total estimated project cost or required credit in INR.
+              </span>
             </div>
           </div>
         )}
 
-        {/* Form Actions */}
-        <div className="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center">
+        {/* Form Navigation Buttons */}
+        <div className="mt-10 pt-6 border-t border-neutral-100 flex justify-between items-center gap-4">
           {step > 1 ? (
             <button
               type="button"
               onClick={prevStep}
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-neutral-300 rounded-full text-neutral-800 font-medium text-sm hover:bg-neutral-100 transition-all"
             >
-              Back
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
             </button>
           ) : (
-            <div></div> // Spacer
+            <div />
           )}
           
           {step < 3 ? (
             <button
               type="button"
               onClick={nextStep}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white rounded-full font-medium text-sm hover:bg-neutral-800 transition-all shadow-sm"
             >
-              Next
+              <span>Continue</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white rounded-full font-medium text-sm hover:bg-neutral-800 transition-all disabled:opacity-60 shadow-sm"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isLoading ? 'Matching...' : 'Find My Schemes'}
+              <span>{isLoading ? 'Matching Schemes...' : 'Find My Schemes'}</span>
+              {!isLoading && <Sparkles className="w-4 h-4" />}
             </button>
           )}
         </div>

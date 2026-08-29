@@ -1,4 +1,4 @@
-import { UserProfile, IncomeRange, Gender, Category, BusinessStatus, BusinessType } from '@/types';
+import { UserProfile, IncomeRange, Gender, Category, BusinessStatus, BusinessType, STATE_ALIASES, INDIAN_STATES } from '@/types';
 
 export function parseNaturalLanguageProfile(text: string): Partial<UserProfile> {
   const profile: Partial<UserProfile> = {};
@@ -79,17 +79,21 @@ export function parseNaturalLanguageProfile(text: string): Partial<UserProfile> 
   else if (lowerText.match(/(tailor|textile|cloth|stitch)/)) profile.businessType = 'Tailoring/Textiles';
   else if (lowerText.match(/(handicraft|craft|artisan)/)) profile.businessType = 'Handicrafts';
 
-  // Indian States extraction (partial list for demonstration)
-  const states = [
-    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat',
-    'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra',
-    'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
-    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi'
-  ];
-  for (const state of states) {
-    if (lowerText.includes(state.toLowerCase())) {
-      profile.state = state;
+  // Indian States extraction with alias & abbreviation support (e.g. UP, HR, DL, MP, RJ, etc.)
+  for (const [alias, fullState] of Object.entries(STATE_ALIASES)) {
+    const pattern = new RegExp(`\\b${alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (pattern.test(lowerText)) {
+      profile.state = fullState;
       break;
+    }
+  }
+
+  if (!profile.state) {
+    for (const state of INDIAN_STATES) {
+      if (lowerText.includes(state.toLowerCase())) {
+        profile.state = state;
+        break;
+      }
     }
   }
 

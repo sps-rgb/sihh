@@ -245,4 +245,36 @@ describe('Scheme Matching Engine', () => {
       }
     }
   });
+
+  it('14. State abbreviation normalization (UP for Uttar Pradesh in DEMO-RA-004)', () => {
+    const profile = createBaseProfile({
+      category: 'General',
+      annualIncome: '₹1–2.5 lakh',
+      businessType: 'Agriculture',
+      state: 'UP', // abbreviation for Uttar Pradesh
+      projectCost: 300000,
+    });
+
+    const results = matchSchemes(profile);
+    const ruralScheme = results.find(r => r.schemeId === 'DEMO-RA-004');
+
+    expect(ruralScheme).toBeDefined();
+    expect(ruralScheme?.status).toBe('Eligible');
+    expect(ruralScheme?.matchedConditions.some(c => c.includes('Uttar Pradesh'))).toBeTruthy();
+  });
+
+  it('15. State abbreviation normalization (HR for Haryana in nationwide scheme)', () => {
+    const profile = createBaseProfile({
+      category: 'General',
+      state: 'hr', // lowercase abbreviation for Haryana
+      annualIncome: 'Below ₹1 lakh',
+      projectCost: 150000,
+    });
+
+    const results = matchSchemes(profile);
+    const glScheme = results.find(r => r.schemeId === 'DEMO-GL-010');
+
+    expect(glScheme).toBeDefined();
+    expect(glScheme?.status).toBe('Eligible');
+  });
 });
