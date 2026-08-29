@@ -1,9 +1,9 @@
-# SchemeMatch — AI-Driven Scheme Matching for Marginalized Entrepreneurs
+# Udhyog-Setu — AI-Driven Scheme Matching for Marginalized Entrepreneurs
 
 > ⚠️ **Demo Version**: All scheme data in this prototype is fictional/mock data created for demonstration purposes. Do NOT treat these as real government schemes. Always verify eligibility with official government sources.
 
 ## Overview
-SchemeMatch is a comprehensive AI-driven platform built for SIH Problem Statement 26092. It simplifies the discovery and matching process of government schemes for marginalized entrepreneurs. By utilizing a multi-step user profiling form, SchemeMatch cross-references demographic data, business intentions, and economic background with complex government scheme requirements, surfacing the most applicable opportunities with full transparency.
+Udhyog-Setu is a comprehensive AI-driven platform built for SIH Problem Statement 26092. It simplifies the discovery and matching process of government schemes for marginalized entrepreneurs. By utilizing a multi-step user profiling form, Udhyog-Setu cross-references demographic data, business intentions, and economic background with complex government scheme requirements, surfacing the most applicable opportunities with full transparency.
 
 ## Features
 - **Smart scheme matching with transparent scoring:** Explains exactly why a user matches, potentially matches, or doesn't match.

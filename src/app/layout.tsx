@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SchemeMatch — AI-Driven Scheme Matching',
+  title: 'Udhyog-Setu — AI-Driven Scheme Matching',
   description: 'Find government schemes that match your profile and business needs using AI.',
 };
 

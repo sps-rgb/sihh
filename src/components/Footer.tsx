@@ -6,7 +6,7 @@ export default function Footer() {
           ⚠️ Demo Version — Scheme information shown is mock data for demonstration only.
         </p>
         <p className="text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} SchemeMatch. All rights reserved.
+          &copy; {new Date().getFullYear()} Udhyog-Setu. All rights reserved.
         </p>
       </div>
     </footer>

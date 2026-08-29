@@ -13,7 +13,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-xl font-bold text-blue-600">SchemeMatch</span>
+              <span className="text-xl font-bold text-blue-600">Udhyog-Setu</span>
               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
                 DEMO
               </span>
