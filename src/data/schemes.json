@@ -1,0 +1,488 @@
+{
+  "_comment": "DEMO / MOCK DATA — NOT REAL GOVERNMENT SCHEMES. This dataset is fictional and created for demonstration purposes only. Do NOT treat these as real government schemes.",
+  "schemes": [
+    {
+      "id": "DEMO-SC-001",
+      "name": "Community Enterprise Growth Scheme",
+      "ministry": "Demo Ministry of Social Justice (Fictional)",
+      "shortDescription": "Financial assistance for SC/ST entrepreneurs in manufacturing, service, and food sectors.",
+      "description": "This DEMO scheme provides subsidized loans and mentorship support to entrepreneurs from Scheduled Caste and Scheduled Tribe communities who wish to start or grow businesses in manufacturing, service, or food sectors. The scheme aims to promote entrepreneurship and economic empowerment among marginalized communities.",
+      "targetBeneficiaries": "SC/ST entrepreneurs aged 18–60 with annual family income up to ₹5 lakh",
+      "eligibility": {
+        "categories": ["SC", "ST"],
+        "minAge": 18,
+        "maxAge": 60,
+        "maxAnnualIncome": 500000,
+        "businessTypes": ["Manufacturing", "Service", "Food"],
+        "states": ["ALL"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 1000000
+      },
+      "benefits": [
+        "Loan up to ₹10 lakh at subsidized interest rate",
+        "Margin money assistance of 25%",
+        "Skill development training",
+        "Mentorship from established entrepreneurs",
+        "3-month moratorium on EMI payments"
+      ],
+      "maximumLoanAmount": 1000000,
+      "interestRate": "5% per annum (subsidized)",
+      "repaymentTenure": "7 years including 3-month moratorium",
+      "documents": [
+        "Aadhaar Card",
+        "Caste Certificate (SC/ST)",
+        "Income Certificate",
+        "Business Plan / Project Report",
+        "Bank Account Details",
+        "Address Proof",
+        "2 Passport-size Photographs"
+      ],
+      "applicationProcess": [
+        "Visit the nearest District Industries Centre (DIC)",
+        "Fill out the application form with required documents",
+        "Submit the business plan / project report",
+        "Application is reviewed by the district committee",
+        "Approved applicants receive loan disbursement within 45 days"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/community-enterprise (FICTIONAL URL)",
+      "lastUpdated": "2024-01-15"
+    },
+    {
+      "id": "DEMO-WE-002",
+      "name": "Women Entrepreneur Empowerment Initiative",
+      "ministry": "Demo Ministry of Women & Child Development (Fictional)",
+      "shortDescription": "Dedicated support for women entrepreneurs in service, trading, tailoring, and food businesses.",
+      "description": "This DEMO scheme is designed to empower women entrepreneurs by providing affordable credit, business development support, and market linkages. It targets women who want to start or expand their businesses in service, trading, tailoring/textiles, or food sectors.",
+      "targetBeneficiaries": "Women entrepreneurs aged 18–55 with annual family income up to ₹8 lakh",
+      "eligibility": {
+        "categories": ["ALL"],
+        "minAge": 18,
+        "maxAge": 55,
+        "maxAnnualIncome": 800000,
+        "businessTypes": ["Service", "Trading", "Tailoring/Textiles", "Food"],
+        "states": ["ALL"],
+        "genders": ["Female"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 1500000
+      },
+      "benefits": [
+        "Loan up to ₹15 lakh at reduced interest rate",
+        "Margin money assistance of 30%",
+        "Free business skills training program",
+        "Market linkage and exhibition support",
+        "Online marketplace registration assistance"
+      ],
+      "maximumLoanAmount": 1500000,
+      "interestRate": "6% per annum (subsidized)",
+      "repaymentTenure": "5 years with 6-month moratorium",
+      "documents": [
+        "Aadhaar Card",
+        "Income Certificate",
+        "Business Plan / Project Report",
+        "Bank Account Details",
+        "Address Proof",
+        "2 Passport-size Photographs"
+      ],
+      "applicationProcess": [
+        "Apply online through the demo portal or visit nearest DIC",
+        "Submit application with required documents",
+        "Attend a brief business readiness interview",
+        "Application reviewed within 30 days",
+        "Approved applicants receive disbursement and training schedule"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/women-entrepreneur (FICTIONAL URL)",
+      "lastUpdated": "2024-02-20"
+    },
+    {
+      "id": "DEMO-YE-003",
+      "name": "Youth Startup Kickstart Programme",
+      "ministry": "Demo Ministry of Skill Development (Fictional)",
+      "shortDescription": "Support for young entrepreneurs aged 18–35 starting new businesses across all sectors.",
+      "description": "This DEMO programme encourages youth entrepreneurship by providing seed funding, mentorship, and incubation support for new business ventures. It is open to all social categories and covers all business types.",
+      "targetBeneficiaries": "Young entrepreneurs aged 18–35, all categories, starting new businesses",
+      "eligibility": {
+        "categories": ["ALL"],
+        "minAge": 18,
+        "maxAge": 35,
+        "maxAnnualIncome": 500000,
+        "businessTypes": ["ALL"],
+        "states": ["ALL"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": false,
+        "maxProjectCost": 500000
+      },
+      "benefits": [
+        "Seed funding up to ₹5 lakh",
+        "6-month incubation support",
+        "Mentorship from industry experts",
+        "Co-working space access for 1 year",
+        "Networking and investor connect events"
+      ],
+      "maximumLoanAmount": 500000,
+      "interestRate": "4% per annum (subsidized)",
+      "repaymentTenure": "5 years with 1-year moratorium",
+      "documents": [
+        "Aadhaar Card",
+        "Age Proof (Birth Certificate / 10th Marksheet)",
+        "Income Certificate",
+        "Detailed Business Plan",
+        "Educational Qualification Certificates",
+        "Bank Account Details"
+      ],
+      "applicationProcess": [
+        "Register on the demo startup portal",
+        "Submit detailed business plan online",
+        "Shortlisted candidates attend a pitch session",
+        "Selected applicants receive seed funding",
+        "Quarterly progress reviews for continued support"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/youth-startup (FICTIONAL URL)",
+      "lastUpdated": "2024-03-10"
+    },
+    {
+      "id": "DEMO-RA-004",
+      "name": "Rural Artisan & Agri-Business Scheme",
+      "ministry": "Demo Ministry of Rural Development (Fictional)",
+      "shortDescription": "Support for rural entrepreneurs in agriculture, handicrafts, and food processing in selected states.",
+      "description": "This DEMO scheme supports rural entrepreneurs engaged in agriculture, handicrafts, and food processing businesses. It provides financial assistance, technical training, and market access to promote rural livelihoods in selected states.",
+      "targetBeneficiaries": "Rural entrepreneurs in agriculture, handicrafts, and food sectors in select states",
+      "eligibility": {
+        "categories": ["ALL"],
+        "minAge": 18,
+        "maxAge": 65,
+        "maxAnnualIncome": 300000,
+        "businessTypes": ["Agriculture", "Handicrafts", "Food"],
+        "states": ["Bihar", "Jharkhand", "Odisha", "Chhattisgarh", "Madhya Pradesh", "Rajasthan", "Uttar Pradesh", "West Bengal", "Assam"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 800000
+      },
+      "benefits": [
+        "Loan up to ₹8 lakh at subsidized rate",
+        "Capital subsidy of 35%",
+        "Technical training and skill upgradation",
+        "Raw material procurement support",
+        "Direct market linkage through government e-marketplace"
+      ],
+      "maximumLoanAmount": 800000,
+      "interestRate": "4% per annum (subsidized)",
+      "repaymentTenure": "7 years with 6-month moratorium",
+      "documents": [
+        "Aadhaar Card",
+        "Domicile Certificate",
+        "Income Certificate",
+        "Land Records (for agriculture)",
+        "Artisan Card (for handicrafts)",
+        "Business Plan / Project Report",
+        "Bank Account Details"
+      ],
+      "applicationProcess": [
+        "Visit the Block Development Office",
+        "Submit application with domicile and income proof",
+        "Field verification by block-level officer",
+        "Application reviewed by district committee",
+        "Approved applicants receive training followed by disbursement"
+      ],
+      "stateCoverage": "Bihar, Jharkhand, Odisha, Chhattisgarh, Madhya Pradesh, Rajasthan, Uttar Pradesh, West Bengal, Assam",
+      "sourceUrl": "https://demo-example.gov.in/rural-artisan (FICTIONAL URL)",
+      "lastUpdated": "2024-04-05"
+    },
+    {
+      "id": "DEMO-BE-005",
+      "name": "Business Expansion & Modernization Fund",
+      "ministry": "Demo Ministry of MSME (Fictional)",
+      "shortDescription": "Credit facility for existing businesses seeking expansion or modernization.",
+      "description": "This DEMO fund helps existing micro and small enterprises modernize their operations, upgrade technology, or expand capacity. It provides term loans at competitive rates with flexible repayment options.",
+      "targetBeneficiaries": "Existing business owners aged 21–60 with income up to ₹10 lakh",
+      "eligibility": {
+        "categories": ["ALL"],
+        "minAge": 21,
+        "maxAge": 60,
+        "maxAnnualIncome": 1000000,
+        "businessTypes": ["Manufacturing", "Service", "Trading", "Food"],
+        "states": ["ALL"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": false,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 2500000
+      },
+      "benefits": [
+        "Term loan up to ₹25 lakh",
+        "Technology upgrade subsidy of 15%",
+        "Working capital assistance",
+        "Business process consulting",
+        "ISO certification support"
+      ],
+      "maximumLoanAmount": 2500000,
+      "interestRate": "8% per annum",
+      "repaymentTenure": "10 years with 1-year moratorium",
+      "documents": [
+        "Aadhaar Card / PAN Card",
+        "Business Registration Certificate",
+        "Last 3 years Financial Statements",
+        "Income Tax Returns",
+        "Project Report for Expansion",
+        "Bank Statements (last 12 months)",
+        "Existing Loan Details (if any)"
+      ],
+      "applicationProcess": [
+        "Apply at the nearest MSME District Office or online portal",
+        "Submit business registration and financial documents",
+        "Site inspection by MSME officer",
+        "Loan sanctioned by bank in coordination with MSME office",
+        "Disbursement in phases based on project milestones"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/business-expansion (FICTIONAL URL)",
+      "lastUpdated": "2024-05-15"
+    },
+    {
+      "id": "DEMO-MC-006",
+      "name": "Minority Community Enterprise Support Scheme",
+      "ministry": "Demo Ministry of Minority Affairs (Fictional)",
+      "shortDescription": "Financial and training support for minority community entrepreneurs in retail and trading.",
+      "description": "This DEMO scheme provides concessional credit and skill training to entrepreneurs from minority communities who want to set up or run small retail and trading businesses.",
+      "targetBeneficiaries": "Minority community entrepreneurs aged 18–55 with income up to ₹6 lakh",
+      "eligibility": {
+        "categories": ["Minority"],
+        "minAge": 18,
+        "maxAge": 55,
+        "maxAnnualIncome": 600000,
+        "businessTypes": ["Trading", "Service", "Food"],
+        "states": ["ALL"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 800000
+      },
+      "benefits": [
+        "Loan up to ₹8 lakh at subsidized rate",
+        "Skill development program (2 weeks)",
+        "Margin money assistance of 20%",
+        "Hand-holding support for 1 year",
+        "Digital literacy training"
+      ],
+      "maximumLoanAmount": 800000,
+      "interestRate": "6% per annum (subsidized)",
+      "repaymentTenure": "5 years with 3-month moratorium",
+      "documents": [
+        "Aadhaar Card",
+        "Minority Community Certificate",
+        "Income Certificate",
+        "Business Plan / Project Report",
+        "Bank Account Details",
+        "Address Proof"
+      ],
+      "applicationProcess": [
+        "Apply at the nearest Minority Welfare Office or online",
+        "Submit application with minority certificate and income proof",
+        "Attend a skill assessment session",
+        "Application reviewed by state minority commission",
+        "Approved applicants receive training followed by loan disbursement"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/minority-enterprise (FICTIONAL URL)",
+      "lastUpdated": "2024-06-01"
+    },
+    {
+      "id": "DEMO-DA-007",
+      "name": "Divyang Entrepreneur Assistance Programme",
+      "ministry": "Demo Department of Empowerment of PwD (Fictional)",
+      "shortDescription": "Comprehensive support for differently-abled entrepreneurs across all business types.",
+      "description": "This DEMO programme offers financial assistance, assistive technology support, and accessible infrastructure grants to differently-abled entrepreneurs (Persons with Disabilities) who wish to start or expand their businesses.",
+      "targetBeneficiaries": "Differently-abled entrepreneurs aged 18–55 with income up to ₹5 lakh",
+      "eligibility": {
+        "categories": ["ALL"],
+        "minAge": 18,
+        "maxAge": 55,
+        "maxAnnualIncome": 500000,
+        "businessTypes": ["ALL"],
+        "states": ["ALL"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 1200000
+      },
+      "benefits": [
+        "Loan up to ₹12 lakh at special subsidized rate",
+        "Assistive technology grant up to ₹1 lakh",
+        "Accessible workplace infrastructure support",
+        "Dedicated business mentorship",
+        "Priority in government procurement"
+      ],
+      "maximumLoanAmount": 1200000,
+      "interestRate": "4% per annum (special subsidized)",
+      "repaymentTenure": "8 years with 1-year moratorium",
+      "documents": [
+        "Aadhaar Card",
+        "Disability Certificate (UDID Card)",
+        "Income Certificate",
+        "Business Plan / Project Report",
+        "Bank Account Details",
+        "Medical Certificate"
+      ],
+      "applicationProcess": [
+        "Register on the demo PwD entrepreneurship portal",
+        "Submit disability certificate and business plan",
+        "Accessibility assessment of proposed business location",
+        "Application reviewed by state disability commissioner",
+        "Approved applicants receive grants and loan disbursement"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/divyang-entrepreneur (FICTIONAL URL)",
+      "lastUpdated": "2024-07-20"
+    },
+    {
+      "id": "DEMO-OBC-008",
+      "name": "OBC Micro-Enterprise Development Scheme",
+      "ministry": "Demo Ministry of Social Justice (Fictional)",
+      "shortDescription": "Micro-loan support for OBC entrepreneurs starting small businesses.",
+      "description": "This DEMO scheme provides micro-loans and hand-holding support to entrepreneurs from Other Backward Classes (OBC) who want to set up small-scale businesses with low capital requirements.",
+      "targetBeneficiaries": "OBC entrepreneurs aged 18–50 with income up to ₹3 lakh",
+      "eligibility": {
+        "categories": ["OBC"],
+        "minAge": 18,
+        "maxAge": 50,
+        "maxAnnualIncome": 300000,
+        "businessTypes": ["Service", "Trading", "Food", "Tailoring/Textiles", "Handicrafts"],
+        "states": ["ALL"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": false,
+        "maxProjectCost": 300000
+      },
+      "benefits": [
+        "Micro-loan up to ₹3 lakh at subsidized rate",
+        "Interest subsidy of 3% for first 2 years",
+        "Basic business literacy training",
+        "Financial literacy and bookkeeping workshop",
+        "Linkage with local self-help groups"
+      ],
+      "maximumLoanAmount": 300000,
+      "interestRate": "7% per annum (with 3% subsidy for 2 years)",
+      "repaymentTenure": "3 years",
+      "documents": [
+        "Aadhaar Card",
+        "OBC Certificate",
+        "Income Certificate",
+        "Simple Business Plan",
+        "Bank Account Details",
+        "Address Proof"
+      ],
+      "applicationProcess": [
+        "Visit the nearest Common Service Centre (CSC)",
+        "Fill out the simplified application form",
+        "Submit OBC certificate and income proof",
+        "Application verified by block-level officer",
+        "Approved applicants receive micro-loan within 30 days"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/obc-micro-enterprise (FICTIONAL URL)",
+      "lastUpdated": "2024-08-10"
+    },
+    {
+      "id": "DEMO-UW-009",
+      "name": "Urban Women Self-Help Enterprise Scheme",
+      "ministry": "Demo Ministry of Housing & Urban Affairs (Fictional)",
+      "shortDescription": "Support for urban women self-help groups in food processing and tailoring/textiles.",
+      "description": "This DEMO scheme provides financial and infrastructure support to women-led self-help groups in urban areas who are engaged in food processing, tailoring, textiles, and related micro-enterprises.",
+      "targetBeneficiaries": "Urban women SHG members aged 21–50 with income up to ₹4 lakh",
+      "eligibility": {
+        "categories": ["ALL"],
+        "minAge": 21,
+        "maxAge": 50,
+        "maxAnnualIncome": 400000,
+        "businessTypes": ["Food", "Tailoring/Textiles"],
+        "states": ["Delhi", "Maharashtra", "Karnataka", "Tamil Nadu", "Gujarat", "West Bengal", "Telangana", "Kerala"],
+        "genders": ["Female"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 600000
+      },
+      "benefits": [
+        "Group loan up to ₹6 lakh per SHG member",
+        "Shared workspace/kitchen facility",
+        "Packaging and branding support",
+        "E-commerce onboarding assistance",
+        "Raw material bulk procurement support"
+      ],
+      "maximumLoanAmount": 600000,
+      "interestRate": "5% per annum (subsidized)",
+      "repaymentTenure": "4 years with 3-month moratorium",
+      "documents": [
+        "Aadhaar Card",
+        "SHG Registration Certificate",
+        "Income Certificate",
+        "Group Business Plan",
+        "Bank Account Details (SHG Account)",
+        "Urban Address Proof"
+      ],
+      "applicationProcess": [
+        "SHG must register with the Urban Local Body",
+        "Submit group application through the ULB office",
+        "Attend group assessment and business viability review",
+        "Application reviewed by city-level NULM committee",
+        "Approved SHGs receive training and phased disbursement"
+      ],
+      "stateCoverage": "Delhi, Maharashtra, Karnataka, Tamil Nadu, Gujarat, West Bengal, Telangana, Kerala",
+      "sourceUrl": "https://demo-example.gov.in/urban-women-shg (FICTIONAL URL)",
+      "lastUpdated": "2024-09-01"
+    },
+    {
+      "id": "DEMO-GL-010",
+      "name": "General Low-Income Livelihood Scheme",
+      "ministry": "Demo Ministry of Labour & Employment (Fictional)",
+      "shortDescription": "Micro-credit for low-income individuals across all categories to start small livelihood activities.",
+      "description": "This DEMO scheme provides micro-credit and basic training to low-income individuals from any social category who wish to start small-scale livelihood activities. It targets the most economically vulnerable sections.",
+      "targetBeneficiaries": "Low-income individuals aged 18–58, all categories, annual income below ₹2 lakh",
+      "eligibility": {
+        "categories": ["ALL"],
+        "minAge": 18,
+        "maxAge": 58,
+        "maxAnnualIncome": 200000,
+        "businessTypes": ["ALL"],
+        "states": ["ALL"],
+        "genders": ["ALL"],
+        "newBusinessAllowed": true,
+        "existingBusinessAllowed": true,
+        "maxProjectCost": 200000
+      },
+      "benefits": [
+        "Micro-credit up to ₹2 lakh",
+        "Interest subsidy of 5% for first year",
+        "Basic entrepreneurship training (1 week)",
+        "Tool kit / equipment grant up to ₹25,000",
+        "Linkage with local market and buyers"
+      ],
+      "maximumLoanAmount": 200000,
+      "interestRate": "7% per annum (with 5% subsidy for 1 year)",
+      "repaymentTenure": "3 years",
+      "documents": [
+        "Aadhaar Card",
+        "Income Certificate / BPL Card",
+        "Bank Account Details",
+        "Simple Business Idea Description",
+        "Address Proof"
+      ],
+      "applicationProcess": [
+        "Visit the nearest employment exchange or CSC",
+        "Fill out the simplified application form",
+        "Submit income proof and identity documents",
+        "Brief interview by local employment officer",
+        "Approved applicants receive training and micro-credit within 45 days"
+      ],
+      "stateCoverage": "All States and Union Territories",
+      "sourceUrl": "https://demo-example.gov.in/general-livelihood (FICTIONAL URL)",
+      "lastUpdated": "2024-10-15"
+    }
+  ]
+}
+
