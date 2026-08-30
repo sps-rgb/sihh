@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       'amenity=hospital',
       'amenity=police',
       'amenity=fire_station',
-      'amenity=school',
       'amenity=bank',
       'office=government',
       'amenity=townhall'

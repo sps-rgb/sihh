@@ -4,7 +4,15 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SchemeCard from '@/components/SchemeCard';
 import dynamic from 'next/dynamic';
-const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
+const MapView = dynamic(() => import('@/components/MapView'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm" aria-busy="true">
+      <h2 className="text-lg font-bold text-neutral-900">Nearby Infrastructure</h2>
+      <div className="mt-4 h-[420px] animate-pulse rounded-2xl bg-neutral-100" />
+    </div>
+  ),
+});
 import Disclaimer from '@/components/Disclaimer';
 import type { MatchResult, UserProfile, Scheme } from '@/types';
 import { Sparkles, ArrowLeft, RefreshCw } from 'lucide-react';
@@ -51,16 +59,10 @@ export default function ResultsPage() {
 
   if (isLoading) {
     return (
-      <>
-        <div className="flex-1 flex flex-col justify-center items-center py-24 space-y-4">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-neutral-300 border-t-black"></div>
-          <p className="text-sm font-medium text-neutral-500">Evaluating scheme rules...</p>
-        </div>
-        {/* Map showing nearby infrastructure */}
-        <div className="pt-6">
-          <MapView userProfile={userProfile} />
-        </div>
-      </>
+      <div className="flex-1 flex flex-col justify-center items-center py-24 space-y-4">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-neutral-300 border-t-black"></div>
+        <p className="text-sm font-medium text-neutral-500">Evaluating scheme rules...</p>
+      </div>
     );
   }
 
@@ -187,6 +189,11 @@ export default function ResultsPage() {
           </Link>
         </div>
       )}
+
+      {/* This is intentionally in the completed-results layout, directly after scheme details. */}
+      <section aria-labelledby="nearby-infrastructure-heading">
+        <MapView userProfile={userProfile} />
+      </section>
 
       {/* Disclaimer */}
       <div className="pt-4">

@@ -10,8 +10,27 @@ type Amenity = {
   lat: number;
   lon: number;
   name?: string;
-  type: string;
+  category: string;
 };
+
+const CATEGORY_COLORS: Record<string, string> = {
+  'Government office': '#6b7280',
+  'District administration': '#7c3aed',
+  Hospital: '#dc2626',
+  'Police station': '#2563eb',
+  'Fire station': '#ea580c',
+  Bank: '#059669',
+};
+
+function getCategory(tags: Record<string, string> = {}) {
+  if (tags.office === 'government') return 'Government office';
+  if (tags.amenity === 'townhall') return 'District administration';
+  if (tags.amenity === 'hospital') return 'Hospital';
+  if (tags.amenity === 'police') return 'Police station';
+  if (tags.amenity === 'fire_station') return 'Fire station';
+  if (tags.amenity === 'bank') return 'Bank';
+  return 'Nearby service';
+}
 
 export default function MapView({ userProfile }: { userProfile: UserProfile | null }) {
   const [center, setCenter] = useState<[number, number] | null>(null);
@@ -35,34 +54,15 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
 
         const nomRes = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
         const nomJson = await nomRes.json();
-        if (!nomJson || nomJson.length === 0) {
-          setError('Location not found');
-          setLoading(false);
-          return;
-        }
+        if (!nomRes.ok) throw new Error(nomJson.error || 'Unable to find the searched location.');
+        if (!Array.isArray(nomJson) || nomJson.length === 0) throw new Error('Location not found.');
         const { lat, lon } = nomJson[0];
         const latNum = parseFloat(lat);
         const lonNum = parseFloat(lon);
+        if (!Number.isFinite(latNum) || !Number.isFinite(lonNum)) throw new Error('The returned location has invalid coordinates.');
         setCenter([latNum, lonNum]);
 
-        // Build Overpass query for nearby amenities (5km radius)
-        const amenitiesToQuery = [
-          'amenity=hospital',
-          'amenity=police',
-          'amenity=fire_station',
-          'amenity=school',
-          'amenity=bank',
-          'office=government',
-          'amenity=townhall'
-        ];
-
         const around = 5000; // meters
-        const clauses = amenitiesToQuery
-          .map((tag) => `node(around:${around},${latNum},${lonNum})[${tag}];way(around:${around},${latNum},${lonNum})[${tag}];relation(around:${around},${latNum},${lonNum})[${tag}];`)
-          .join('');
-
-        const overpassQuery = `[out:json][timeout:25];(${clauses});out center;`;
-
         const overRes = await fetch('/api/overpass', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -70,14 +70,15 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
         });
 
         const overJson = await overRes.json();
+        if (!overRes.ok) throw new Error(overJson.error || 'Unable to load nearby services.');
         const elements = overJson.elements || [];
 
         const parsed: Amenity[] = elements.map((el: any) => {
-          const { id, lat: nLat, lon: nLon, tags, type, center } = el;
+          const { id, lat: nLat, lon: nLon, tags, center } = el;
           const name = tags?.name || tags?.official_name || tags?.operator;
           const coords = nLat && nLon ? { lat: nLat, lon: nLon } : center ? { lat: center.lat, lon: center.lon } : null;
           return coords
-            ? { id, lat: coords.lat, lon: coords.lon, name, type: Object.values(tags || {}).join(',') || type }
+            ? { id, lat: coords.lat, lon: coords.lon, name, category: getCategory(tags) }
             : null;
         }).filter(Boolean) as Amenity[];
 
@@ -106,7 +107,7 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
 
   return (
     <div className="bg-white rounded-3xl border border-neutral-200 p-4 shadow-sm">
-      <h3 className="text-lg font-bold mb-2">Nearby Infrastructure</h3>
+      <h2 id="nearby-infrastructure-heading" className="text-lg font-bold mb-2">Nearby Infrastructure</h2>
       <p className="text-xs text-neutral-500 mb-3">Map centered on your provided location (state or state+city). Showing nearby key services.</p>
 
       {loading && (
@@ -120,8 +121,8 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
       )}
 
       {!loading && center && (
-        <div style={{ height: 420 }}>
-          <MapContainer {...({ center, zoom: 12, scrollWheelZoom: false, style: { height: '100%', width: '100%' } } as any)}>
+        <div className="h-[420px] overflow-hidden rounded-2xl border border-neutral-200">
+          <MapContainer {...({ center, zoom: 12, zoomControl: true, scrollWheelZoom: false, style: { height: '100%', width: '100%' } } as any)}>
             <TileLayer {...({ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' } as any)} />
 
             {/* User center marker */}
@@ -130,10 +131,10 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
             </CircleMarker>
 
             {amenities.map((a) => (
-              <CircleMarker {...({ key: a.id, center: [a.lat, a.lon], radius: 6, pathOptions: { color: a.type.includes('hospital') ? '#dc2626' : a.type.includes('police') ? '#2563eb' : a.type.includes('school') ? '#f59e0b' : a.type.includes('bank') ? '#10b981' : '#6b7280' } } as any)}>
+              <CircleMarker {...({ key: a.id, center: [a.lat, a.lon], radius: 6, pathOptions: { color: CATEGORY_COLORS[a.category] || '#6b7280' } } as any)}>
                 <Popup>
                   <div className="text-sm font-semibold">{a.name || 'Unnamed'}</div>
-                  <div className="text-xs text-neutral-600">{a.type}</div>
+                  <div className="text-xs text-neutral-600">{a.category}</div>
                 </Popup>
               </CircleMarker>
             ))}
