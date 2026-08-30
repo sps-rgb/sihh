@@ -33,10 +33,7 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
         setLoading(true);
         setError(null);
 
-        const nomRes = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-          { headers: { 'User-Agent': 'Udhyog-Setu/1.0 (example@example.com)' } }
-        );
+        const nomRes = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
         const nomJson = await nomRes.json();
         if (!nomJson || nomJson.length === 0) {
           setError('Location not found');
@@ -66,13 +63,13 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
 
         const overpassQuery = `[out:json][timeout:25];(${clauses});out center;`;
 
-        const overpassRes = await fetch('https://overpass-api.de/api/interpreter', {
+        const overRes = await fetch('/api/overpass', {
           method: 'POST',
-          body: overpassQuery,
-          headers: { 'Content-Type': 'text/plain' },
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat: latNum, lon: lonNum, around }),
         });
 
-        const overJson = await overpassRes.json();
+        const overJson = await overRes.json();
         const elements = overJson.elements || [];
 
         const parsed: Amenity[] = elements.map((el: any) => {
