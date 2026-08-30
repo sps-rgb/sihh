@@ -48,15 +48,35 @@ export default function InfrastructureMapClient({ city, state, lat, lon, radius 
           if (state) params.set('state', state);
         }
         params.set('radius', String(radius));
+
+        // Robust fetch: read text, try parse JSON, handle non-OK or non-JSON responses
         const res = await fetch(`/api/map/nearby?${params.toString()}`);
-        if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
-        const json = await res.json();
+        let json: any = null;
+        try {
+          const text = await res.text();
+          try { json = JSON.parse(text); } catch { json = { error: 'Invalid response from map backend', raw: text }; }
+        } catch (err) {
+          console.error('Failed to read map response text', err);
+          throw err;
+        }
+
         if (!active) return;
-        setCenter(json.center);
+
+        if (!res.ok) {
+          console.warn('Map backend returned non-OK', res.status, json);
+          setError(json?.error ?? `Map fetch failed: ${res.status}`);
+          setCenter(json?.center ?? null);
+          setPlaces(json?.places ?? []);
+          return;
+        }
+
+        setCenter(json.center ?? null);
         setPlaces(json.places ?? []);
       } catch (err: any) {
         console.error(err);
-        setError(err.message ?? 'Unknown map error');
+        setError(err?.message ?? 'Unknown map error');
+        setPlaces([]);
+        setCenter(null);
       } finally { if (active) setLoading(false); }
     })();
     return () => { active = false; };
