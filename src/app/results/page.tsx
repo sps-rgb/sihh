@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SchemeCard from '@/components/SchemeCard';
+import dynamic from 'next/dynamic';
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 import Disclaimer from '@/components/Disclaimer';
 import type { MatchResult, UserProfile, Scheme } from '@/types';
 import { Sparkles, ArrowLeft, RefreshCw } from 'lucide-react';
@@ -49,10 +51,16 @@ export default function ResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex flex-col justify-center items-center py-24 space-y-4">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-neutral-300 border-t-black"></div>
-        <p className="text-sm font-medium text-neutral-500">Evaluating scheme rules...</p>
-      </div>
+      <>
+        <div className="flex-1 flex flex-col justify-center items-center py-24 space-y-4">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-neutral-300 border-t-black"></div>
+          <p className="text-sm font-medium text-neutral-500">Evaluating scheme rules...</p>
+        </div>
+        {/* Map showing nearby infrastructure */}
+        <div className="pt-6">
+          <MapView userProfile={userProfile} />
+        </div>
+      </>
     );
   }
 
