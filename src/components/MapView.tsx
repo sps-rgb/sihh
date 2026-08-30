@@ -47,104 +47,88 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
     const city = (userProfile as any).city;
     const query = city ? `${city}, ${userProfile.state}` : userProfile.state;
 
-    const geocode = async () => {
+    const fetchNearby = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const nomRes = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
-        const nomJson = await nomRes.json();
-        if (!nomRes.ok) throw new Error(nomJson.error || 'Unable to find the searched location.');
-        if (!Array.isArray(nomJson) || nomJson.length === 0) throw new Error('Location not found.');
-        const { lat, lon } = nomJson[0];
-        const latNum = parseFloat(lat);
-        const lonNum = parseFloat(lon);
-        if (!Number.isFinite(latNum) || !Number.isFinite(lonNum)) throw new Error('The returned location has invalid coordinates.');
-        setCenter([latNum, lonNum]);
+        // Use the central API route (GET). This endpoint supports lat/lon OR city/state.
+        const params = new URLSearchParams();
+        if ((userProfile as any).lat && (userProfile as any).lon) {
+          params.set('lat', String((userProfile as any).lat));
+          params.set('lon', String((userProfile as any).lon));
+        } else {
+          if (city) params.set('city', city);
+          params.set('state', userProfile.state);
+        }
+        params.set('radius', String(5000));
 
-        const around = 5000; // meters
-        const overRes = await fetch('/api/overpass', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lat: latNum, lon: lonNum, around }),
-        });
+        const res = await fetch(`/api/map/nearby?${params.toString()}`);
+        let json: any = null;
+        const text = await res.text();
+        try { json = JSON.parse(text); } catch { json = { error: 'Invalid response', raw: text }; }
 
-        const overJson = await overRes.json();
-        if (!overRes.ok) throw new Error(overJson.error || 'Unable to load nearby services.');
-        const elements = overJson.elements || [];
+        if (!res.ok) {
+          setError(json?.error ?? `Map fetch failed: ${res.status}`);
+          setCenter(json?.center ? [json.center.lat, json.center.lon] : null);
+          setAmenities([]);
+          return;
+        }
 
-        const parsed: Amenity[] = elements.map((el: any) => {
-          const { id, lat: nLat, lon: nLon, tags, center } = el;
-          const name = tags?.name || tags?.official_name || tags?.operator;
-          const coords = nLat && nLon ? { lat: nLat, lon: nLon } : center ? { lat: center.lat, lon: center.lon } : null;
-          return coords
-            ? { id, lat: coords.lat, lon: coords.lon, name, category: getCategory(tags) }
-            : null;
-        }).filter(Boolean) as Amenity[];
+        const centerObj = json.center;
+        if (centerObj?.lat && centerObj?.lon) {
+          setCenter([Number(centerObj.lat), Number(centerObj.lon)]);
+        } else {
+          setCenter(null);
+        }
+
+        const places = json.places ?? [];
+        const parsed: Amenity[] = (places as any[]).map((p: any) => ({
+          id: p.id,
+          lat: p.lat,
+          lon: p.lon,
+          name: p.name ?? null,
+          category: p.category ?? getCategory(p.tags ?? {}),
+        }));
 
         setAmenities(parsed);
       } catch (err: any) {
-        setError(err.message || 'Failed to load map data');
+        console.error('MapView error', err);
+        setError(err?.message ?? 'Unable to find nearby services.');
       } finally {
         setLoading(false);
       }
     };
 
-    void geocode();
+    fetchNearby();
   }, [userProfile]);
 
-  if (!userProfile || !userProfile.state) {
-    return (
-      <div className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm text-center">
-        <h3 className="text-lg font-semibold mb-2">Map unavailable</h3>
-        <p className="text-sm text-neutral-500">Complete your profile (State required) to view a map centered on your location.</p>
-        <div className="mt-4">
-          <a href="/scheme-finder" className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-sm">Complete Profile</a>
-        </div>
-      </div>
-    );
+  if (loading) {
+    return <div className="p-4 bg-white rounded-2xl shadow-sm">Loading map…</div>;
+  }
+  if (error) {
+    return <div className="p-4 bg-yellow-50 rounded-2xl border border-yellow-200">Map error: {error}</div>;
+  }
+  if (!center) {
+    return <div className="p-4 bg-neutral-50 rounded-2xl">No map data available</div>;
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-neutral-200 p-4 shadow-sm">
-      <h2 id="nearby-infrastructure-heading" className="text-lg font-bold mb-2">Nearby Infrastructure</h2>
-      <p className="text-xs text-neutral-500 mb-3">Map centered on your provided location (state or state+city). Showing nearby key services.</p>
-
-      {loading && (
-        <div className="py-12 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-neutral-300 border-t-black"></div>
-        </div>
-      )}
-
-      {error && (
-        <div className="text-sm text-red-600">{error}</div>
-      )}
-
-      {!loading && center && (
-        <div className="h-[420px] overflow-hidden rounded-2xl border border-neutral-200">
-          <MapContainer {...({ center, zoom: 12, zoomControl: true, scrollWheelZoom: false, style: { height: '100%', width: '100%' } } as any)}>
-            <TileLayer {...({ attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' } as any)} />
-
-            {/* User center marker */}
-            <CircleMarker {...({ center, radius: 8, pathOptions: { color: '#111827', fillColor: '#111827' } } as any)}>
-              <Popup>You (approx.): {((userProfile as any).city ? `${(userProfile as any).city}, ` : '') + userProfile.state}</Popup>
-            </CircleMarker>
-
-            {amenities.map((a) => (
-              <CircleMarker {...({ key: a.id, center: [a.lat, a.lon], radius: 6, pathOptions: { color: CATEGORY_COLORS[a.category] || '#6b7280' } } as any)}>
-                <Popup>
-                  <div className="text-sm font-semibold">{a.name || 'Unnamed'}</div>
-                  <div className="text-xs text-neutral-600">{a.category}</div>
-                </Popup>
-              </CircleMarker>
-            ))}
-          </MapContainer>
-        </div>
-      )}
-
-      {!loading && !center && !error && (
-        <div className="text-sm text-neutral-500 py-6">Location not found for your input.</div>
-      )}
+    <div className="rounded-lg overflow-hidden shadow-sm" aria-live="polite" role="region" aria-label="Nearby public services map">
+      <MapContainer center={center} zoom={12} style={{ height: 420, width: '100%' }}>
+        <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <CircleMarker center={center} radius={6} pathOptions={{ color: '#111' }}>
+          <Popup>Searched location</Popup>
+        </CircleMarker>
+        {amenities.map((a) => (
+          <CircleMarker key={a.id} center={[a.lat, a.lon]} radius={5} pathOptions={{ color: CATEGORY_COLORS[a.category] ?? '#4b5563' }}>
+            <Popup>
+              <div style={{ fontWeight: 700 }}>{a.name ?? a.category}</div>
+              <div style={{ fontSize: 12, color: '#333' }}>{a.category}</div>
+            </Popup>
+          </CircleMarker>
+        ))}
+      </MapContainer>
     </div>
   );
 }
