@@ -1,11 +1,50 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, X, Sparkles, Sun, Moon } from 'lucide-react';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark') {
+        document.documentElement.classList.add('dark');
+        setIsDark(true);
+      } else if (stored === 'light') {
+        document.documentElement.classList.remove('dark');
+        setIsDark(false);
+      } else {
+        // follow system preference
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          document.documentElement.classList.add('dark');
+          setIsDark(true);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    try {
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+        setIsDark(false);
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        setIsDark(true);
+      }
+    } catch (e) {
+      // ignore
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-neutral-200">
@@ -41,16 +80,23 @@ export default function Header() {
             >
               Get Started
             </Link>
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle dark mode"
+              className="ml-2 p-2 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-700"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-neutral-600" />}
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-neutral-700 hover:text-black p-2 rounded-full hover:bg-neutral-100 focus:outline-none"
-            >
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-neutral-700 hover:text-black p-2 rounded-full hover:bg-neutral-100 focus:outline-none"
+              >
+                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
           </div>
         </div>
       </div>
@@ -72,6 +118,15 @@ export default function Header() {
           >
             AI Assistant
           </Link>
+          <div className="px-4 pt-2">
+            <button
+              onClick={() => { toggleTheme(); setIsOpen(false); }}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-2xl border border-neutral-200 bg-white text-sm font-medium"
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+          </div>
         </div>
       )}
     </header>

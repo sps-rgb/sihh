@@ -95,7 +95,17 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
     void geocode();
   }, [userProfile]);
 
-  if (!userProfile || !userProfile.state) return null;
+  if (!userProfile || !userProfile.state) {
+    return (
+      <div className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm text-center">
+        <h3 className="text-lg font-semibold mb-2">Map unavailable</h3>
+        <p className="text-sm text-neutral-500">Complete your profile (State required) to view a map centered on your location.</p>
+        <div className="mt-4">
+          <a href="/scheme-finder" className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-sm">Complete Profile</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-3xl border border-neutral-200 p-4 shadow-sm">
