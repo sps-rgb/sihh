@@ -1,3 +1,4 @@
+// src/app/api/map/nearby/route.ts
 import { NextResponse } from 'next/server';
 
 function haversineDistance(lat1:number, lon1:number, lat2:number, lon2:number) {
@@ -12,6 +13,37 @@ function haversineDistance(lat1:number, lon1:number, lat2:number, lon2:number) {
             Math.sin(Δλ/2) * Math.sin(Δλ/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c;
+}
+
+const OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.openstreetmap.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+
+async function tryOverpass(query: string) {
+  const errors: any[] = [];
+  for (const url of OVERPASS_ENDPOINTS) {
+    try {
+      const res = await fetch(url, { method: 'POST', body: query, headers: { 'Content-Type': 'text/plain' } });
+      const text = await res.text();
+      if (!res.ok) {
+        errors.push({ endpoint: url, status: res.status, body: text });
+        continue;
+      }
+      try {
+        const json = JSON.parse(text);
+        return { json, endpoint: url };
+      } catch (err) {
+        errors.push({ endpoint: url, status: res.status, parseError: String(err), body: text });
+        continue;
+      }
+    } catch (err: any) {
+      errors.push({ endpoint: url, error: String(err) });
+      // try next endpoint
+    }
+  }
+  return { error: 'All endpoints failed', details: errors };
 }
 
 export async function GET(req: Request) {
@@ -40,8 +72,13 @@ export async function GET(req: Request) {
       const r = await fetch(nomUrl, {
         headers: { 'User-Agent': 'sihh-map/1.0 (+https://your-site.example)' }
       });
-      if (!r.ok) return NextResponse.json({ error: 'Geocoding failed' }, { status: 502 });
-      const data = await r.json();
+      const nomText = await r.text();
+      let data: any;
+      try { data = JSON.parse(nomText); } catch (e) { data = null; }
+      if (!r.ok) {
+        console.error('[api/map/nearby] Nominatim failed', { status: r.status, body: nomText });
+        return NextResponse.json({ error: 'Geocoding failed', details: process.env.NODE_ENV === 'production' ? undefined : { status: r.status, body: nomText } }, { status: 502 });
+      }
       if (!data || data.length === 0) return NextResponse.json({ error: 'No geocoding results' }, { status: 404 });
       centerLat = Number(data[0].lat);
       centerLon = Number(data[0].lon);
@@ -65,13 +102,14 @@ export async function GET(req: Request) {
     const clauses = tags.map(t => `node(around:${around},${centerLat},${centerLon})[${t}];way(around:${around},${centerLat},${centerLon})[${t}];relation(around:${around},${centerLat},${centerLon})[${t}];`).join('\n');
     const query = `[out:json][timeout:25];\n(\n${clauses}\n);\nout center tags;`;
 
-    const overpassRes = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body: query,
-      headers: { 'Content-Type': 'text/plain' }
-    });
-    if (!overpassRes.ok) return NextResponse.json({ error: 'Overpass query failed' }, { status: 502 });
-    const overpassJson = await overpassRes.json();
+    const overResult = await tryOverpass(query);
+    if ((overResult as any).error) {
+      console.error('[api/map/nearby] Overpass all endpoints failed', (overResult as any).details);
+      // Return a 200 with empty places to avoid breaking the UI while still logging details
+      return NextResponse.json({ center: { lat: centerLat, lon: centerLon, display_name }, places: [], error: 'Overpass endpoints unreachable', details: process.env.NODE_ENV === 'production' ? undefined : (overResult as any).details }, { status: 200 });
+    }
+
+    const overpassJson = (overResult as any).json;
     const elements = overpassJson.elements || [];
 
     const places = elements.map((el: any) => {
@@ -87,8 +125,11 @@ export async function GET(req: Request) {
 
     const result = { center: { lat: centerLat, lon: centerLon, display_name }, places };
     return NextResponse.json(result, { status: 200, headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=300' } });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  } catch (error: any) {
+    console.error('[api/map/nearby] unexpected error', error);
+    const payload = process.env.NODE_ENV === 'production'
+      ? { error: 'Map lookup failed' }
+      : { error: error?.message || String(error), stack: error?.stack };
+    return NextResponse.json(payload, { status: 500 });
   }
 }
