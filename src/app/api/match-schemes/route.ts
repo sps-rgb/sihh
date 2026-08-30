@@ -14,7 +14,15 @@ export async function POST(request: NextRequest) {
     const matches = matchSchemes(profile);
     
     return NextResponse.json({ matches });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to match schemes' }, { status: 500 });
+  } catch (error: any) {
+    // Log the full error server-side for inspection
+    console.error('[api/match-schemes] error:', error);
+
+    // In development return the error message and stack so it's visible to the client
+    const payload = process.env.NODE_ENV === 'production'
+      ? { error: 'Failed to match schemes' }
+      : { error: error?.message || String(error), stack: error?.stack };
+
+    return NextResponse.json(payload, { status: 500 });
   }
 }
