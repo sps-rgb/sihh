@@ -99,14 +99,27 @@ export async function GET(req: Request) {
     ];
 
     const around = radius;
-    const clauses = tags.map(t => `node(around:${around},${centerLat},${centerLon})[${t}];way(around:${around},${centerLat},${centerLon})[${t}];relation(around:${around},${centerLat},${centerLon})[${t}];`).join('\n');
+    const clauses = tags
+      .map(t =>
+        `  node(around:${around},${centerLat},${centerLon})[${t}];\n  way(around:${around},${centerLat},${centerLon})[${t}];\n  relation(around:${around},${centerLat},${centerLon})[${t}];`
+      )
+      .join("\n");
+
     const query = `[out:json][timeout:25];\n(\n${clauses}\n);\nout center tags;`;
 
     const overResult = await tryOverpass(query);
     if ((overResult as any).error) {
       console.error('[api/map/nearby] Overpass all endpoints failed', (overResult as any).details);
       // Return a 200 with empty places to avoid breaking the UI while still logging details
-      return NextResponse.json({ center: { lat: centerLat, lon: centerLon, display_name }, places: [], error: 'Overpass endpoints unreachable', details: process.env.NODE_ENV === 'production' ? undefined : (overResult as any).details }, { status: 200 });
+      return NextResponse.json(
+        {
+          center: { lat: centerLat, lon: centerLon, display_name },
+          places: [],
+          error: 'Overpass endpoints unreachable',
+          details: process.env.NODE_ENV === 'production' ? undefined : (overResult as any).details
+        },
+        { status: 200, headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=300' } }
+      );
     }
 
     const overpassJson = (overResult as any).json;
