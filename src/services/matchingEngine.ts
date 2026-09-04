@@ -1,13 +1,24 @@
 import { Scheme, UserProfile, MatchResult, EligibilityStatus, normalizeStateName, formatCurrency } from '@/types';
 import { incomeRangeToMaxValue } from '@/types';
-import { getAllSchemes } from './schemeService';
+import { getAllSchemes, getAllSchemesSync } from './schemeService';
 
-export function matchSchemes(profile: UserProfile): MatchResult[] {
-  const schemes = getAllSchemes();
+/**
+ * Asynchronously matches user profile against schemes loaded from Supabase database.
+ */
+export async function matchSchemesAsync(profile: UserProfile): Promise<MatchResult[]> {
+  const schemes = await getAllSchemes();
+  return matchSchemes(profile, schemes);
+}
+
+/**
+ * Synchronously matches user profile against provided schemes (or fallback local schemes).
+ */
+export function matchSchemes(profile: UserProfile, schemesList?: Scheme[]): MatchResult[] {
+  const schemes = schemesList && schemesList.length > 0 ? schemesList : getAllSchemesSync();
   const results = schemes.map((scheme) => matchSingleScheme(profile, scheme));
 
   return results.sort((a, b) => {
-    const statusWeight = {
+    const statusWeight: Record<EligibilityStatus, number> = {
       'Eligible': 3,
       'Potentially Eligible': 2,
       'Not Eligible': 1,
@@ -17,6 +28,33 @@ export function matchSchemes(profile: UserProfile): MatchResult[] {
     }
     return b.score - a.score;
   });
+}
+
+/**
+ * Checks if user's business sector matches the scheme's allowed sectors.
+ */
+function isBusinessSectorMatched(userSector: string, allowedSectors: string[]): boolean {
+  if (!allowedSectors || allowedSectors.length === 0) return true;
+  if (allowedSectors.some(s => s.toUpperCase() === 'ALL')) return true;
+
+  const normalizedUser = userSector.toLowerCase().trim();
+  const normalizedAllowed = allowedSectors.map(s => s.toLowerCase().trim());
+
+  if (normalizedAllowed.includes(normalizedUser)) return true;
+
+  // Domain synonym mapping
+  const sectorSynonyms: Record<string, string[]> = {
+    'agriculture': ['agritech', 'farming', 'allied agriculture', 'crop'],
+    'food': ['food processing', 'dairy', 'agro-processing'],
+    'tailoring/textiles': ['textiles', 'coir', 'apparel', 'garments', 'handloom'],
+    'handicrafts': ['traditional craft', 'artisans', 'handloom', 'coir', 'pottery'],
+    'trading': ['vending', 'retail', 'commercial', 'wholesale'],
+    'service': ['technology', 'software', 'fintech', 'healthtech', 'edtech', 'hospitality'],
+    'manufacturing': ['technology', 'defence', 'hardware', 'robotics'],
+  };
+
+  const synonyms = sectorSynonyms[normalizedUser] || [];
+  return normalizedAllowed.some(s => synonyms.some(syn => s === syn || s.includes(syn)));
 }
 
 export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchResult {
@@ -31,20 +69,26 @@ export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchRe
   const elig = scheme.eligibility;
 
   // Gender check (Mandatory)
-  if (elig.genders && elig.genders.length > 0 && !elig.genders.includes('ALL') && profile.gender) {
-    if ((elig.genders as string[]).includes(profile.gender)) {
+  const isAllGenders = !elig.genders || elig.genders.length === 0 || elig.genders.some(g => g.toUpperCase() === 'ALL');
+  if (!isAllGenders && profile.gender) {
+    const userGender = profile.gender.toLowerCase();
+    const genderMatches = (elig.genders as string[]).some(g => g.toLowerCase() === userGender || g.toLowerCase() === 'all');
+    if (genderMatches) {
       matchedConditions.push(`Gender requirement met (${profile.gender}).`);
     } else {
       failedConditions.push(`Gender mismatch: Scheme specifically targets ${elig.genders.join(', ')}.`);
       hasMandatoryFailure = true;
     }
   } else {
-    matchedConditions.push('No specific gender restrictions.');
+    matchedConditions.push('No specific gender restrictions (Open to all genders).');
   }
 
   // Category check (Mandatory, 20 points)
-  if (elig.categories && elig.categories.length > 0 && !elig.categories.includes('ALL') && profile.category) {
-    if (elig.categories.includes(profile.category)) {
+  const isAllCategories = !elig.categories || elig.categories.length === 0 || elig.categories.some(c => c.toUpperCase() === 'ALL');
+  if (!isAllCategories && profile.category) {
+    const userCat = profile.category.toUpperCase();
+    const catMatches = elig.categories.some(c => c.toUpperCase() === userCat || c.toUpperCase() === 'ALL');
+    if (catMatches) {
       score += 20;
       matchedConditions.push(`Category requirement met (${profile.category}).`);
     } else {
@@ -69,7 +113,7 @@ export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchRe
     }
     if (ageValid) {
       score += 10;
-      matchedConditions.push(`Age requirement met (${elig.minAge || 18}-${elig.maxAge || 65} years).`);
+      matchedConditions.push(`Age requirement met (${elig.minAge || 18}-${elig.maxAge || 70} years).`);
     } else {
       hasMandatoryFailure = true;
     }
@@ -79,8 +123,10 @@ export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchRe
 
   // State check (Mandatory, 10 points)
   const normalizedState = normalizeStateName(profile.state || '');
-  if (elig.states && elig.states.length > 0 && !elig.states.includes('ALL') && normalizedState) {
-    if (elig.states.includes(normalizedState)) {
+  const isAllStates = !elig.states || elig.states.length === 0 || elig.states.some(s => s.toUpperCase() === 'ALL');
+  if (!isAllStates && normalizedState) {
+    const stateMatches = elig.states.some(s => normalizeStateName(s).toLowerCase() === normalizedState.toLowerCase() || s.toUpperCase() === 'ALL');
+    if (stateMatches) {
       score += 10;
       matchedConditions.push(`State eligibility met (${normalizedState}).`);
     } else {
@@ -108,8 +154,8 @@ export function matchSingleScheme(profile: UserProfile, scheme: Scheme): MatchRe
   }
 
   // Business type match (Soft, 15 points)
-  if (elig.businessTypes && elig.businessTypes.length > 0 && !elig.businessTypes.includes('ALL') && profile.businessType) {
-    if (elig.businessTypes.includes(profile.businessType)) {
+  if (profile.businessType) {
+    if (isBusinessSectorMatched(profile.businessType, (elig.businessTypes as string[]) || [])) {
       score += 15;
       matchedConditions.push(`Business sector requirement met (${profile.businessType}).`);
     } else {

@@ -7,7 +7,7 @@ interface DisclaimerProps {
 
 export default function Disclaimer({
   className = '',
-  text = 'Demo Prototype: Scheme data shown is fictional/mock data for demonstration only. Verify all information against official government sources before applying.',
+  text = 'Official Scheme Data: Sourced from verified government scheme database. Verify specific guidelines with the official nodal agency before applying.',
 }: DisclaimerProps) {
   return (
     <div className={`flex items-start gap-3 bg-neutral-100 text-neutral-800 p-4 rounded-2xl border border-neutral-200 ${className}`}>

@@ -1,6 +1,8 @@
 // src/app/api/map/nearby/route.ts
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 function haversineDistance(lat1:number, lon1:number, lat2:number, lon2:number) {
   const toRad = (v:number) => (v * Math.PI) / 180;
   const R = 6371e3;

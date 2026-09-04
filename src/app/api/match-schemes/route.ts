@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { matchSchemes } from '@/services/matchingEngine';
+import { matchSchemesAsync } from '@/services/matchingEngine';
 import { UserProfile } from '@/types';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,14 +13,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User profile is required' }, { status: 400 });
     }
     
-    const matches = matchSchemes(profile);
+    const matches = await matchSchemesAsync(profile);
     
     return NextResponse.json({ matches });
   } catch (error: any) {
-    // Log the full error server-side for inspection
     console.error('[api/match-schemes] error:', error);
 
-    // In development return the error message and stack so it's visible to the client
     const payload = process.env.NODE_ENV === 'production'
       ? { error: 'Failed to match schemes' }
       : { error: error?.message || String(error), stack: error?.stack };

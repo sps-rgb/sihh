@@ -220,7 +220,21 @@ export default function SchemeDetailPage({ params }: { params: { id: string } })
 
           <div className="bg-neutral-50 p-6 sm:p-10 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-neutral-500">
             <div>
-              <span className="block mb-1 font-medium">Source Reference: <span className="text-neutral-800 underline inline-flex items-center gap-1">Fictional Demo Authority <ExternalLink className="w-3 h-3 inline-block" /></span></span>
+              <span className="block mb-1 font-medium">
+                Source Reference:{' '}
+                {scheme.sourceUrl ? (
+                  <a
+                    href={scheme.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-neutral-800 underline font-semibold inline-flex items-center gap-1 hover:text-black"
+                  >
+                    Official Portal <ExternalLink className="w-3 h-3 inline-block" />
+                  </a>
+                ) : (
+                  <span className="text-neutral-800 font-semibold">{scheme.ministry}</span>
+                )}
+              </span>
               <span>Last Verified: {new Date(scheme.lastUpdated).toLocaleDateString()}</span>
             </div>
             <Disclaimer className="w-full sm:w-auto mt-4 sm:mt-0 max-w-md text-xs py-2.5 px-3.5" />
