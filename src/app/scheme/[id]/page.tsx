@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ExternalLink, Sparkles, X, MessageSquare } from 'lucide-react';
 import type { Scheme, MatchResult, UserProfile } from '@/types';
@@ -10,7 +10,8 @@ import ChatBox from '@/components/ChatBox';
 import Disclaimer from '@/components/Disclaimer';
 import InfrastructureMap from '@/components/InfrastructureMap/InfrastructureMap';
 
-export default function SchemeDetailPage({ params }: { params: { id: string } }) {
+export default function SchemeDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [scheme, setScheme] = useState<Scheme | null>(null);
@@ -20,37 +21,45 @@ export default function SchemeDetailPage({ params }: { params: { id: string } })
   const [isChatOpen, setIsChatOpen] = useState(searchParams.get('chat') === 'open');
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchScheme = async () => {
       try {
-        const response = await fetch(`/api/schemes/${params.id}`);
+        const response = await fetch(`/api/schemes/${id}`);
         if (!response.ok) {
           if (response.status === 404) {
-            setScheme(null);
+            if (isMounted) setScheme(null);
           }
           throw new Error('Scheme not found');
         }
         const data = await response.json();
-        setScheme(data);
+        if (isMounted) setScheme(data);
       } catch (error) {
         console.error('Error fetching scheme:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
 
     fetchScheme();
 
-    const contextStr = sessionStorage.getItem(`scheme-context-${params.id}`);
+    const contextStr = sessionStorage.getItem(`scheme-context-${id}`);
     if (contextStr) {
       try {
         const context = JSON.parse(contextStr);
-        setMatchResult(context.matchResult || null);
-        setUserProfile(context.userProfile || null);
+        if (isMounted) {
+          setMatchResult(context.matchResult || null);
+          setUserProfile(context.userProfile || null);
+        }
       } catch (e) {
         console.error('Error parsing scheme context', e);
       }
     }
-  }, [params.id]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
 
   if (isLoading) {
     return (

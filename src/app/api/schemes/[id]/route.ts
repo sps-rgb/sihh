@@ -5,10 +5,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  let schemeId = '';
   try {
-    const { id } = params;
+    const { id } = await params;
+    schemeId = id;
     const scheme = await getSchemeById(id);
     
     if (!scheme) {
@@ -17,7 +19,7 @@ export async function GET(
     
     return NextResponse.json(scheme);
   } catch (error) {
-    console.error(`Failed to fetch scheme ${params.id}:`, error);
+    console.error(`Failed to fetch scheme ${schemeId}:`, error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
