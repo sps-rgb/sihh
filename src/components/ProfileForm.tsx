@@ -34,10 +34,17 @@ export default function ProfileForm() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
+    const target = e.target as HTMLInputElement;
+    const name = target.name;
+    const type = target.type;
+    const value = target.value;
+
     let parsedValue: any = value;
     if (type === 'number') parsedValue = value ? Number(value) : '';
-    else if (type === 'radio') parsedValue = value === 'true';
+    else if (type === 'checkbox') parsedValue = target.checked;
+    else if (value === 'true' || value === 'false') parsedValue = value === 'true';
+    else parsedValue = value;
+
     setFormData((prev) => ({ ...prev, [name]: parsedValue }));
   };
 
@@ -64,11 +71,11 @@ export default function ProfileForm() {
   };
 
   const validateStep1 = () => {
-    if (!formData.age || formData.age < 18 || formData.age > 100) return 'Please enter a valid age between 18 and 100.';
+    if (!formData.age || (typeof formData.age === 'number' && (formData.age < 18 || formData.age > 100))) return 'Please enter a valid age between 18 and 100.';
     if (!formData.gender) return 'Please select a gender.';
-    const normalizedState = normalizeStateName(formData.state || stateInput);
+    const normalizedState = normalizeStateName((formData.state as string) || stateInput || '');
     if (!normalizedState) return 'Please enter or select a state.';
-    if (!INDIAN_STATES.includes(normalizedState)) return `State "${formData.state}" not recognized.`;
+    if (!INDIAN_STATES.includes(normalizedState)) return `State "${normalizedState}" not recognized.`;
     setFormData((prev) => ({ ...prev, state: normalizedState }));
     if (!formData.category) return 'Please select a social category.';
     return '';
@@ -82,7 +89,7 @@ export default function ProfileForm() {
 
   const validateStep3 = () => {
     if (!formData.annualIncome) return 'Please select your annual family income.';
-    if (!formData.projectCost || formData.projectCost <= 0) return 'Please enter a valid project/loan requirement.';
+    if (!formData.projectCost || Number(formData.projectCost) <= 0) return 'Please enter a valid project/loan requirement.';
     return '';
   };
 
@@ -214,7 +221,7 @@ export default function ProfileForm() {
               </div>
               <input
                 type="text" list="indian-states-list"
-                value={stateInput || formData.state || ''} onChange={handleStateChange} onBlur={handleStateBlur}
+                value={stateInput || (formData.state as string) || ''} onChange={handleStateChange} onBlur={handleStateBlur}
                 placeholder="Type state name or code (e.g. UP, Maharashtra)"
                 autoComplete="off"
                 className="w-full rounded-2xl glass-input px-4 py-3 text-sm"
@@ -225,7 +232,7 @@ export default function ProfileForm() {
                   const full = normalizeStateName(st);
                   return (
                     <button key={st} type="button" onClick={() => selectStateFromList(full)}
-                      className={`text-xs px-3 py-1 rounded-full border transition-all ${formData.state === full ? 'bg-cyan-500 border-cyan-500 text-white font-semibold' : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'}`}>
+                      className={`text-xs px-3 py-1 rounded-full border transition-all ${formData.state === full ? 'bg-cyan-500 border-cyan-500 text-white font-semibold' : 'border-white/10 text-neutral-400 hover:border-white/25 hover:text-white'}`}>
                       {st}
                     </button>
                   );
@@ -238,7 +245,7 @@ export default function ProfileForm() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Social Category</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {CATEGORIES.map((c) => (
-                  <label key={c} className={`flex items-center justify-center p-3 rounded-xl border cursor-pointer transition-all text-sm font-medium text-center ${
+                  <label key={c} className={`flex items-center justify-center p-3 rounded-xl border cursor-pointer transition-all text-sm font-medium ${
                     formData.category === c
                       ? 'border-cyan-500 bg-cyan-500/15 text-cyan-300'
                       : 'border-white/10 bg-white/3 text-neutral-400 hover:border-white/25 hover:text-white'
