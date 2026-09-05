@@ -94,18 +94,20 @@ export default function ProfileForm() {
   };
 
   const nextStep = () => {
+    console.log('ProfileForm.nextStep called, current step=', step);
     let err = '';
     if (step === 1) err = validateStep1();
     if (step === 2) err = validateStep2();
-    if (err) { setError(err); } else { setError(''); setStep((p) => p + 1); }
+    if (err) { setError(err); console.warn('Validation error on nextStep:', err); } else { setError(''); setStep((p) => p + 1); }
   };
 
-  const prevStep = () => { setError(''); setStep((p) => p - 1); };
+  const prevStep = () => { console.log('ProfileForm.prevStep called, current step=', step); setError(''); setStep((p) => p - 1); };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('ProfileForm.handleSubmit called, formData=', formData);
     const err = validateStep3();
-    if (err) { setError(err); return; }
+    if (err) { setError(err); console.warn('Validation error on submit:', err); return; }
     setIsLoading(true);
     setError('');
     try {
@@ -120,6 +122,7 @@ export default function ProfileForm() {
       sessionStorage.setItem('match-results', JSON.stringify(data.matches));
       router.push('/results');
     } catch (err: any) {
+      console.error('match-schemes error', err);
       setError(err.message || 'An error occurred. Please try again.');
       setIsLoading(false);
     }
@@ -133,7 +136,7 @@ export default function ProfileForm() {
   ];
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-10 max-w-2xl mx-auto border border-white/8 shadow-2xl">
+    <div className="glass-panel rounded-3xl p-6 sm:p-10 max-w-2xl mx-auto border border-white/8 shadow-2xl relative z-20">
       {/* Step Progress */}
       <div className="mb-10">
         <div className="flex items-center">
