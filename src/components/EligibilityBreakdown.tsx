@@ -1,4 +1,4 @@
-import { Check, X, AlertCircle } from 'lucide-react';
+import { Check, X, AlertTriangle } from 'lucide-react';
 
 interface EligibilityBreakdownProps {
   matchedConditions: string[];
@@ -12,43 +12,33 @@ export default function EligibilityBreakdown({
   uncertainConditions = [],
 }: EligibilityBreakdownProps) {
   return (
-    <div className="space-y-2 mt-3 text-sm">
-      {matchedConditions.length > 0 && (
-        <ul className="space-y-1.5">
-          {matchedConditions.map((condition, idx) => (
-            <li key={`match-${idx}`} className="flex items-start gap-2 text-neutral-800">
-              <span className="h-4 w-4 rounded-full bg-black text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check className="h-2.5 w-2.5" />
-              </span>
-              <span>{condition}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      {uncertainConditions.length > 0 && (
-        <ul className="space-y-1.5 mt-2">
-          {uncertainConditions.map((condition, idx) => (
-            <li key={`uncertain-${idx}`} className="flex items-start gap-2 text-neutral-600">
-              <span className="h-4 w-4 rounded-full bg-neutral-200 text-neutral-800 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <AlertCircle className="h-3 w-3" />
-              </span>
-              <span>{condition}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      {failedConditions.length > 0 && (
-        <ul className="space-y-1.5 mt-2">
-          {failedConditions.map((condition, idx) => (
-            <li key={`fail-${idx}`} className="flex items-start gap-2 text-neutral-500">
-              <span className="h-4 w-4 rounded-full border border-neutral-300 bg-neutral-100 text-neutral-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <X className="h-2.5 w-2.5" />
-              </span>
-              <span>{condition}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="space-y-2.5 text-sm">
+      {matchedConditions.map((condition, idx) => (
+        <div key={`match-${idx}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/15">
+          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mt-0.5">
+            <Check className="w-2.5 h-2.5 text-emerald-400" />
+          </span>
+          <span className="text-neutral-300 leading-snug">{condition}</span>
+        </div>
+      ))}
+
+      {uncertainConditions.map((condition, idx) => (
+        <div key={`uncertain-${idx}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/15">
+          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center mt-0.5">
+            <AlertTriangle className="w-2.5 h-2.5 text-amber-400" />
+          </span>
+          <span className="text-neutral-400 leading-snug">{condition}</span>
+        </div>
+      ))}
+
+      {failedConditions.map((condition, idx) => (
+        <div key={`fail-${idx}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-red-500/5 border border-red-500/10">
+          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500/15 border border-red-500/20 flex items-center justify-center mt-0.5">
+            <X className="w-2.5 h-2.5 text-red-400" />
+          </span>
+          <span className="text-neutral-500 leading-snug line-through decoration-red-500/40">{condition}</span>
+        </div>
+      ))}
     </div>
   );
 }

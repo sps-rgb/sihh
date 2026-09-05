@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { Scheme, MatchResult, UserProfile } from '@/types';
 import MatchBadge from './MatchBadge';
 import EligibilityBreakdown from './EligibilityBreakdown';
-import { ArrowRight, MessageSquare } from 'lucide-react';
+import { ArrowRight, MessageSquare, TrendingUp } from 'lucide-react';
 
 interface SchemeCardProps {
   scheme: Scheme;
@@ -25,59 +25,91 @@ export default function SchemeCard({ scheme, matchResult, userProfile }: SchemeC
     router.push(`/scheme/${scheme.id}?chat=open`);
   };
 
+  const isEligible = matchResult.status === 'Eligible';
+  const scoreColor = matchResult.score >= 80 ? 'text-emerald-400' : matchResult.score >= 50 ? 'text-amber-400' : 'text-red-400';
+  const scoreGlow = matchResult.score >= 80 ? 'shadow-emerald-500/20' : matchResult.score >= 50 ? 'shadow-amber-500/20' : 'shadow-red-500/20';
+
+  // Circular progress ring
+  const radius = 24;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (matchResult.score / 100) * circumference;
+
   return (
-    <div className="bg-white rounded-3xl border border-neutral-200 p-7 shadow-sm transition-all hover:border-black hover:shadow-md">
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
-        <div>
-          <MatchBadge status={matchResult.status} />
-          <h3 className="text-xl font-bold text-neutral-900 mt-3">{scheme.name}</h3>
+    <div className="glass-panel glass-panel-hover rounded-3xl overflow-hidden border border-white/8">
+      {/* Top Row */}
+      <div className="p-6 sm:p-7 pb-5">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <MatchBadge status={matchResult.status} />
+              <span className="text-xs text-neutral-500 font-mono">{scheme.ministry?.split(' ').slice(0, 3).join(' ')}</span>
+            </div>
+            <h3 className="text-xl font-bold text-white tracking-tight leading-snug mt-1">{scheme.name}</h3>
+            <p className="text-sm text-neutral-400 mt-2 line-clamp-2 leading-relaxed">{scheme.description}</p>
+          </div>
+
+          {/* Circular Score Ring */}
+          <div className={`flex-shrink-0 relative w-16 h-16 flex items-center justify-center rounded-full bg-black/30 shadow-xl ${scoreGlow}`}>
+            <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth="3" fill="none" />
+              <circle
+                cx="32" cy="32" r={radius}
+                stroke={isEligible ? '#10b981' : matchResult.score >= 50 ? '#f59e0b' : '#ef4444'}
+                strokeWidth="3"
+                fill="none"
+                strokeDasharray={circumference}
+                strokeDashoffset={offset}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className={`text-sm font-black font-mono ${scoreColor} z-10`}>{matchResult.score}%</span>
+          </div>
         </div>
-        {/* Single, clear percentage match indicator */}
-        <div className="bg-black text-white text-base font-bold px-4 py-1.5 rounded-full text-center flex-shrink-0">
-          {matchResult.score}% Match
-        </div>
-      </div>
-      
-      <p className="text-neutral-600 mb-6 text-sm line-clamp-2 leading-relaxed">{scheme.description}</p>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-neutral-50 p-4 rounded-2xl border border-neutral-100 text-sm">
-        <div>
-          <span className="block text-neutral-400 text-xs uppercase tracking-wider mb-1 font-medium">Max Loan</span>
-          <span className="font-semibold text-neutral-900">{scheme.maximumLoanAmount ? `₹${scheme.maximumLoanAmount.toLocaleString()}` : 'Varies'}</span>
-        </div>
-        <div>
-          <span className="block text-neutral-400 text-xs uppercase tracking-wider mb-1 font-medium">Interest Rate</span>
-          <span className="font-semibold text-neutral-900">{scheme.interestRate || 'Varies'}</span>
-        </div>
-        <div>
-          <span className="block text-neutral-400 text-xs uppercase tracking-wider mb-1 font-medium">Tenure</span>
-          <span className="font-semibold text-neutral-900">{scheme.repaymentTenure || 'Varies'}</span>
+
+        {/* Key Financial Terms */}
+        <div className="grid grid-cols-3 gap-3 mt-5 text-xs">
+          {[
+            { label: 'Max Loan', value: scheme.maximumLoanAmount ? `₹${(scheme.maximumLoanAmount / 100000).toFixed(1)}L` : 'N/A' },
+            { label: 'Interest', value: scheme.interestRate || 'N/A' },
+            { label: 'Tenure', value: scheme.repaymentTenure || 'N/A' },
+          ].map((item) => (
+            <div key={item.label} className="p-2.5 rounded-xl bg-white/3 border border-white/6 text-center">
+              <span className="block text-neutral-500 uppercase tracking-wider text-[10px] mb-0.5">{item.label}</span>
+              <span className="font-bold text-white text-sm font-mono">{item.value}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="mb-6">
-        <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">Eligibility Assessment</h4>
-        <EligibilityBreakdown 
-          matchedConditions={matchResult.matchedConditions} 
-          failedConditions={matchResult.failedConditions} 
-          uncertainConditions={matchResult.uncertainConditions} 
+      {/* Eligibility Breakdown */}
+      <div className="px-6 sm:px-7 pb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp className="w-3.5 h-3.5 text-neutral-500" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Eligibility Assessment</span>
+        </div>
+        {/* Show only top 3 matched conditions to keep cards compact */}
+        <EligibilityBreakdown
+          matchedConditions={matchResult.matchedConditions.slice(0, 3)}
+          failedConditions={matchResult.failedConditions.slice(0, 2)}
+          uncertainConditions={matchResult.uncertainConditions.slice(0, 1)}
         />
       </div>
-      
-      <div className="flex flex-col sm:flex-row gap-3 pt-5 border-t border-neutral-100">
-        <button 
+
+      {/* CTA Footer */}
+      <div className="px-6 sm:px-7 pb-6 pt-2 flex flex-col sm:flex-row gap-3 border-t border-white/6">
+        <button
           onClick={handleViewDetails}
-          className="flex-1 bg-black hover:bg-neutral-800 text-white font-medium py-3 px-5 rounded-full transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
+          className="flex-1 btn-quantum inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full text-sm font-semibold"
         >
-          <span>View Details</span>
+          <span>View Full Details</span>
           <ArrowRight className="w-4 h-4" />
         </button>
-        <button 
+        <button
           onClick={handleAskAi}
-          className="flex-1 bg-white border border-neutral-300 hover:bg-neutral-100 text-neutral-900 font-medium py-3 px-5 rounded-full transition-all flex items-center justify-center gap-2 text-sm"
+          className="flex-1 btn-ghost-glass inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full text-sm font-semibold"
         >
           <MessageSquare className="w-4 h-4" />
-          <span>Ask AI Assistant</span>
+          <span>Ask AI</span>
         </button>
       </div>
     </div>
