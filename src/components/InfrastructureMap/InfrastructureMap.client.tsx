@@ -6,11 +6,17 @@ import styles from './InfrastructureMap.module.css';
 import 'leaflet/dist/leaflet.css';
 
 // Fix icons path for bundlers
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: typeof window !== 'undefined' ? require('leaflet/dist/images/marker-icon-2x.png').default : undefined,
-  iconUrl: typeof window !== 'undefined' ? require('leaflet/dist/images/marker-icon.png').default : undefined,
-  shadowUrl: typeof window !== 'undefined' ? require('leaflet/dist/images/marker-shadow.png').default : undefined,
+const customIcon = L.icon({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
 
 function Recenter({ lat, lon }: { lat:number; lon:number }) {
@@ -95,11 +101,18 @@ export default function InfrastructureMapClient({ city, state, lat, lon, radius 
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ZoomControl position="topright" />
-        <Marker position={[center.lat, center.lon]}>
+        <Marker
+  position={[center.lat, center.lon]}
+  icon={customIcon}
+>
           <Popup><strong>Searched location</strong><div>{center.display_name}</div></Popup>
         </Marker>
         {places.map(p => (
-          <Marker key={p.id} position={[p.lat, p.lon]}>
+          <Marker
+  key={p.id}
+  position={[p.lat, p.lon]}
+  icon={customIcon}
+>
             <Popup>
               <div style={{ minWidth: 160 }}>
                 <div style={{ fontWeight: 700 }}>{p.name ?? p.category}</div>
