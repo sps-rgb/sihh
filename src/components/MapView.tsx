@@ -1,9 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import type { UserProfile } from '@/types';
+import L from "leaflet";
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import type { UserProfile } from "@/types";
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
 
 type Amenity = {
   id: number | string;
@@ -12,6 +24,7 @@ type Amenity = {
   name?: string;
   category: string;
 };
+
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Government office': '#6b7280',
@@ -115,7 +128,12 @@ export default function MapView({ userProfile }: { userProfile: UserProfile | nu
 
   return (
     <div className="rounded-lg overflow-hidden shadow-sm" aria-live="polite" role="region" aria-label="Nearby public services map">
-      <MapContainer center={center} zoom={12} style={{ height: 420, width: '100%' }}>
+      <MapContainer
+  key={`${center[0]}-${center[1]}`}
+  center={center}
+  zoom={12}
+  style={{ height: 420, width: "100%" }}
+>
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <CircleMarker center={center} radius={6} pathOptions={{ color: '#111' }}>
           <Popup>Searched location</Popup>
