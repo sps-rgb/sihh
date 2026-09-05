@@ -136,30 +136,30 @@ export default function ProfileForm() {
   ];
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-10 max-w-2xl mx-auto border border-white/8 shadow-2xl relative z-20">
+    <div className="glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 max-w-2xl mx-auto border border-white/8 shadow-2xl relative z-20">
       {/* Step Progress */}
-      <div className="mb-10">
-        <div className="flex items-center">
+      <div className="mb-8 sm:mb-10">
+        <div className="flex items-center gap-1 sm:gap-0">
           {STEP_META.map((meta, idx) => {
             const stepNum = idx + 1;
             const isCompleted = step > stepNum;
             const isCurrent = step === stepNum;
             return (
-              <div key={stepNum} className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+              <div key={stepNum} className="flex items-center flex-1 min-w-0">
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-300 ${
                     isCompleted ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/40' :
                     isCurrent ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/40 ring-4 ring-cyan-500/20' :
                     'bg-white/5 border border-white/15 text-neutral-500'
                   }`}>
-                    {isCompleted ? <Check className="w-4 h-4" /> : stepNum}
+                    {isCompleted ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : stepNum}
                   </div>
-                  <span className={`text-xs mt-2 font-semibold whitespace-nowrap ${isCurrent ? 'text-cyan-400' : isCompleted ? 'text-emerald-400' : 'text-neutral-600'}`}>
+                  <span className={`text-[10px] sm:text-xs mt-1.5 font-semibold text-center leading-tight ${isCurrent ? 'text-cyan-400' : isCompleted ? 'text-emerald-400' : 'text-neutral-600'}`}>
                     {meta.label}
                   </span>
                 </div>
                 {idx < STEP_META.length - 1 && (
-                  <div className="flex-1 h-0.5 mx-3 relative mt-[-20px]">
+                  <div className="flex-1 h-0.5 mx-1 sm:mx-3 relative mt-[-20px]">
                     <div className="w-full h-full bg-white/8 rounded" />
                     <div
                       className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded transition-all duration-500"
@@ -175,7 +175,7 @@ export default function ProfileForm() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-sm">
+        <div className="mb-6 p-3 sm:p-4 bg-red-500/10 border border-red-500/30 text-red-300 rounded-xl sm:rounded-2xl text-xs sm:text-sm">
           {error}
         </div>
       )}
@@ -183,10 +183,10 @@ export default function ProfileForm() {
       <form onSubmit={handleSubmit}>
         {/* ── Step 1: Personal ── */}
         {step === 1 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white tracking-tight">Personal Details</h3>
-              <p className="text-sm text-neutral-500 mt-1">Demographic data to evaluate your scheme eligibility.</p>
+          <div className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Personal Details</h3>
+              <p className="text-xs sm:text-sm text-neutral-400 mt-1">Demographic data to evaluate your scheme eligibility.</p>
             </div>
 
             {/* Age */}
@@ -195,16 +195,16 @@ export default function ProfileForm() {
               <input
                 type="number" name="age" value={formData.age || ''} onChange={handleChange}
                 min="18" max="100" placeholder="e.g. 28"
-                className="w-full rounded-2xl glass-input px-4 py-3 text-sm"
+                className="w-full rounded-xl sm:rounded-2xl glass-input px-3 sm:px-4 py-2 sm:py-3 text-sm"
               />
             </div>
 
             {/* Gender */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Gender</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 {GENDERS.map((g) => (
-                  <label key={g} className={`flex items-center justify-center p-3 rounded-xl border cursor-pointer transition-all text-sm font-medium ${
+                  <label key={g} className={`flex items-center justify-center p-2.5 sm:p-3 rounded-lg sm:rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-medium truncate ${
                     formData.gender === g
                       ? 'border-cyan-500 bg-cyan-500/15 text-cyan-300'
                       : 'border-white/10 bg-white/3 text-neutral-400 hover:border-white/25 hover:text-white'
@@ -218,24 +218,24 @@ export default function ProfileForm() {
 
             {/* State */}
             <div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-2 gap-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400">State / UT</label>
-                <span className="text-[10px] text-neutral-600">Supports: UP, HR, DL, MH…</span>
+                <span className="text-[9px] text-neutral-600 text-right">Supports: UP, HR, DL…</span>
               </div>
               <input
                 type="text" list="indian-states-list"
                 value={stateInput || (formData.state as string) || ''} onChange={handleStateChange} onBlur={handleStateBlur}
-                placeholder="Type state name or code (e.g. UP, Maharashtra)"
+                placeholder="Type state name (e.g. UP)"
                 autoComplete="off"
-                className="w-full rounded-2xl glass-input px-4 py-3 text-sm"
+                className="w-full rounded-xl sm:rounded-2xl glass-input px-3 sm:px-4 py-2 sm:py-3 text-sm"
               />
               <datalist id="indian-states-list">{INDIAN_STATES.map((s) => <option key={s} value={s} />)}</datalist>
-              <div className="flex flex-wrap gap-1.5 mt-2.5">
+              <div className="flex flex-wrap gap-1 sm:gap-1.5 mt-2">
                 {QUICK_STATES.map((st) => {
                   const full = normalizeStateName(st);
                   return (
                     <button key={st} type="button" onClick={() => selectStateFromList(full)}
-                      className={`text-xs px-3 py-1 rounded-full border transition-all ${formData.state === full ? 'bg-cyan-500 border-cyan-500 text-white font-semibold' : 'border-white/10 text-neutral-400 hover:border-white/25 hover:text-white'}`}>
+                      className={`text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full border transition-all whitespace-nowrap ${formData.state === full ? 'bg-cyan-500 border-cyan-500 text-white font-semibold' : 'border-white/10 text-neutral-400 hover:text-white hover:border-white/30'}`}>
                       {st}
                     </button>
                   );
@@ -246,9 +246,9 @@ export default function ProfileForm() {
             {/* Category */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Social Category</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {CATEGORIES.map((c) => (
-                  <label key={c} className={`flex items-center justify-center p-3 rounded-xl border cursor-pointer transition-all text-sm font-medium ${
+                  <label key={c} className={`flex items-center justify-center p-2.5 sm:p-3 rounded-lg sm:rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-medium truncate ${
                     formData.category === c
                       ? 'border-cyan-500 bg-cyan-500/15 text-cyan-300'
                       : 'border-white/10 bg-white/3 text-neutral-400 hover:border-white/25 hover:text-white'
@@ -264,16 +264,16 @@ export default function ProfileForm() {
 
         {/* ── Step 2: Business ── */}
         {step === 2 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white tracking-tight">Business Details</h3>
-              <p className="text-sm text-neutral-500 mt-1">Tell us about your venture, industry, and operations.</p>
+          <div className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Business Details</h3>
+              <p className="text-xs sm:text-sm text-neutral-400 mt-1">Tell us about your venture and operations.</p>
             </div>
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Employment / Business Status</label>
               <select name="businessStatus" value={formData.businessStatus || ''} onChange={handleChange}
-                className="w-full rounded-2xl glass-input px-4 py-3 text-sm appearance-none">
+                className="w-full rounded-xl sm:rounded-2xl glass-input px-3 sm:px-4 py-2 sm:py-3 text-sm appearance-none">
                 <option value="" className="bg-neutral-900">Select Status</option>
                 {BUSINESS_STATUSES.map((s) => <option key={s} value={s} className="bg-neutral-900">{s}</option>)}
               </select>
@@ -283,7 +283,7 @@ export default function ProfileForm() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Business Sector / Industry</label>
               <div className="grid grid-cols-2 gap-2">
                 {BUSINESS_TYPES.map((t) => (
-                  <label key={t} className={`flex items-center p-3 rounded-xl border cursor-pointer transition-all text-sm font-medium ${
+                  <label key={t} className={`flex items-center justify-center p-2.5 sm:p-3 rounded-lg sm:rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-medium truncate ${
                     formData.businessType === t
                       ? 'border-cyan-500 bg-cyan-500/15 text-cyan-300'
                       : 'border-white/10 bg-white/3 text-neutral-400 hover:border-white/25 hover:text-white'
@@ -297,9 +297,9 @@ export default function ProfileForm() {
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Existing Business?</label>
-              <div className="grid grid-cols-2 gap-3">
-                {[{ val: true, label: 'Yes, Existing' }, { val: false, label: 'No, New Startup' }].map((opt) => (
-                  <label key={String(opt.val)} className={`flex items-center justify-center gap-2 p-3.5 rounded-xl border cursor-pointer transition-all text-sm font-medium ${
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                {[{ val: true, label: 'Yes, Existing' }, { val: false, label: 'No, New' }].map((opt) => (
+                  <label key={String(opt.val)} className={`flex items-center justify-center gap-2 p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-medium truncate ${
                     formData.existingBusiness === opt.val
                       ? 'border-cyan-500 bg-cyan-500/15 text-cyan-300'
                       : 'border-white/10 bg-white/3 text-neutral-400 hover:border-white/25 hover:text-white'
@@ -312,10 +312,10 @@ export default function ProfileForm() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Outstanding Business Loan?</label>
-              <div className="grid grid-cols-2 gap-3">
-                {[{ val: true, label: 'Yes, Active Loan' }, { val: false, label: 'No Active Loans' }].map((opt) => (
-                  <label key={String(opt.val)} className={`flex items-center justify-center gap-2 p-3.5 rounded-xl border cursor-pointer transition-all text-sm font-medium ${
+              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Business Loan?</label>
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                {[{ val: true, label: 'Yes, Active' }, { val: false, label: 'No Loans' }].map((opt) => (
+                  <label key={String(opt.val)} className={`flex items-center justify-center gap-2 p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-medium truncate ${
                     formData.existingLoan === opt.val
                       ? 'border-cyan-500 bg-cyan-500/15 text-cyan-300'
                       : 'border-white/10 bg-white/3 text-neutral-400 hover:border-white/25 hover:text-white'
@@ -331,17 +331,17 @@ export default function ProfileForm() {
 
         {/* ── Step 3: Financial ── */}
         {step === 3 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white tracking-tight">Financial Requirements</h3>
-              <p className="text-sm text-neutral-500 mt-1">Family income range and project funding needed.</p>
+          <div className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Financial Requirements</h3>
+              <p className="text-xs sm:text-sm text-neutral-400 mt-1">Family income and project funding needed.</p>
             </div>
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Annual Family Income</label>
               <div className="grid grid-cols-1 gap-2">
                 {INCOME_RANGES.map((i) => (
-                  <label key={i} className={`flex items-center p-3.5 rounded-xl border cursor-pointer transition-all text-sm font-medium ${
+                  <label key={i} className={`flex items-center p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-medium ${
                     formData.annualIncome === i
                       ? 'border-cyan-500 bg-cyan-500/15 text-cyan-300'
                       : 'border-white/10 bg-white/3 text-neutral-400 hover:border-white/25 hover:text-white'
@@ -354,24 +354,24 @@ export default function ProfileForm() {
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400">Project Cost / Loan (₹)</label>
+              <div className="flex justify-between items-center mb-2 gap-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400">Project Cost (₹)</label>
                 {formData.projectCost && Number(formData.projectCost) > 0 && (
-                  <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
+                  <span className="text-xs font-mono font-bold text-cyan-300 bg-cyan-500/10 px-2 sm:px-2.5 py-0.5 rounded-full border border-cyan-500/20 whitespace-nowrap">
                     {formatCurrency(Number(formData.projectCost))}
                   </span>
                 )}
               </div>
               <input
                 type="number" name="projectCost" value={formData.projectCost || ''} onChange={handleChange}
-                min="0" step="any" placeholder="e.g. 300000, 500000, 1000000"
-                className="w-full rounded-2xl glass-input px-4 py-3 text-sm font-mono"
+                min="0" step="any" placeholder="e.g. 300000"
+                className="w-full rounded-xl sm:rounded-2xl glass-input px-3 sm:px-4 py-2 sm:py-3 text-sm font-mono"
               />
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
                 {QUICK_AMOUNTS.map((item) => (
                   <button key={item.val} type="button"
                     onClick={() => setFormData((prev) => ({ ...prev, projectCost: item.val }))}
-                    className={`text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${
+                    className={`text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border font-semibold transition-all whitespace-nowrap ${
                       formData.projectCost === item.val
                         ? 'bg-cyan-500 border-cyan-500 text-white'
                         : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
@@ -385,27 +385,27 @@ export default function ProfileForm() {
         )}
 
         {/* Navigation Buttons */}
-        <div className="mt-10 pt-6 border-t border-white/8 flex justify-between items-center gap-4">
+        <div className="mt-8 sm:mt-10 pt-4 sm:pt-6 border-t border-white/8 flex justify-between items-center gap-3">
           {step > 1 ? (
             <button type="button" onClick={prevStep}
-              className="btn-ghost-glass inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium">
-              <ArrowLeft className="w-4 h-4" />
+              className="btn-ghost-glass inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-medium flex-1 sm:flex-none">
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Back</span>
             </button>
-          ) : <div />}
+          ) : <div className="flex-1 sm:flex-none" />}
 
           {step < 3 ? (
             <button type="button" onClick={nextStep}
-              className="btn-quantum inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold">
+              className="btn-quantum inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-semibold flex-1 sm:flex-none whitespace-nowrap">
               <span>Continue</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           ) : (
             <button type="submit" disabled={isLoading}
-              className="btn-quantum inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold disabled:opacity-60">
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{isLoading ? 'Evaluating...' : 'Find My Schemes'}</span>
-              {!isLoading && <Sparkles className="w-4 h-4" />}
+              className="btn-quantum inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-semibold flex-1 sm:flex-none disabled:opacity-60 whitespace-nowrap">
+              {isLoading && <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />}
+              <span>{isLoading ? 'Evaluating...' : 'Find Schemes'}</span>
+              {!isLoading && <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
           )}
         </div>
